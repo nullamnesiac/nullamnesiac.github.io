@@ -142,12 +142,14 @@
     #spotify-title { font-weight: bold; margin-bottom: 2px; }
     #spotify-title a { color: inherit; text-decoration: none; }
     /* Stretch the track link over the whole card so the entire panel is clickable */
-#spotify-title a[href]::after { content: ""; position: absolute; inset: 0; z-index: 2; }
-.spotify:has(a[href]) { cursor: pointer; }
-.spotify:has(a:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
+    #spotify-title a[href]::after { content: ""; position: absolute; inset: 0; z-index: 2; }
+    .spotify:has(a[href]) { cursor: pointer; }
+    .spotify:has(a:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
     #spotify-artist { font-size: 0.9em; }
 
     /* ---------- Skill chips ---------- */
+    .skill-group { margin-bottom: 1rem; }
+    .skill-group h3 { font-size: 0.95rem; font-weight: 600; color: var(--heading); margin-bottom: 0.5rem; }
     .skills-list { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; }
     .skills-list li {
       background: var(--card-bg); border: 1px solid var(--border);
@@ -207,7 +209,7 @@
         <svg viewBox="0 0 24 24" fill="#1DB954" aria-hidden="true">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.54.659.3 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.84.24 1.2zM20.4 9.06c-3.96-2.34-10.44-2.58-14.22-1.44-.6.18-1.2-.12-1.38-.72h-.001c-.18-.6.12-1.2.72-1.38 4.32-1.26 11.46-1.02 15.96 1.62.54.3.72 1.02.42 1.56-.24.48-.9.66-1.5.36z"/>
         </svg>
-        Currently Listening To: <br> (yes its real-time!!)
+        Currently Listening To:
         <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       </h3>
       <div id="spotify-content">
@@ -221,13 +223,35 @@
 
     <section id="skills">
       <h2>Technical Skills</h2>
-      <ul class="skills-list">
-        <li>Python</li>
-        <li>Java</li>
-        <li>HTML5</li>
-        <li>CSS3</li>
-        <li>Git &amp; GitHub</li>
-      </ul>
+      <div class="skill-group">
+        <h3>Languages</h3>
+        <ul class="skills-list">
+          <li>Python</li>
+          <li>Java</li>
+          <li>JavaScript</li>
+          <li>HTML5</li>
+          <li>CSS3</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <h3>Tools and platforms</h3>
+        <ul class="skills-list">
+          <li>Git &amp; GitHub</li>
+          <li>Node.js</li>
+          <li>Vercel</li>
+          <li>GitHub Pages</li>
+          <li>LaTeX (Overleaf)</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <h3>Concepts</h3>
+        <ul class="skills-list">
+          <li>REST APIs</li>
+          <li>OAuth 2.0</li>
+          <li>JSON</li>
+          <li>Serverless functions</li>
+        </ul>
+      </div>
     </section>
 
     <section id="projects">
@@ -256,7 +280,7 @@
         <p>
           A live widget on this site that shows the track I'm currently playing. A small
           serverless API on Vercel talks to the Spotify Web API so credentials stay off
-          the client, and the page polls it every 10 seconds to update the track, artist,
+          the client, and the page polls it every 30 seconds to update the track, artist,
           and album art, with separate states for paused and failed requests.
         </p>
         <div style="margin-top: 1rem;">
@@ -307,7 +331,7 @@
       }
     }
     fetchNowPlaying();
-    setInterval(fetchNowPlaying, 10000);
+    setInterval(fetchNowPlaying, 30000);
 
     /* ---------- Scroll progress ---------- */
     window.addEventListener('scroll', () => {
@@ -337,7 +361,7 @@
     /* ---------- Typing rotator ---------- */
     (function () {
       const el = document.getElementById('rotator');
-      const words = ['software engineering', 'systems', 'algorithms', 'web development', 'data structures', 'programming', 'computers', 'games', 'photography', 'physics', 'music', 'tech products'];
+      const words = ['software engineering', 'systems', 'algorithms'];
       if (reduce) { el.textContent = words.join(', '); return; }
       let w = 0, c = 0, deleting = false;
       (function tick() {
