@@ -278,7 +278,7 @@
           <li>Serverless (Vercel)</li>
         </ul>
         <p>
-          A live widget on this site that shows the track I'm currently playing. A small
+          A live widget on this site that shows the track I'm currently streaming on Spotify. A small
           serverless API on Vercel talks to the Spotify Web API so credentials stay off
           the client, and the page polls it every 30 seconds to update the track, artist,
           and album art, with separate states for paused and failed requests.
@@ -319,8 +319,8 @@
           artistEl.textContent = data.artist;
           card.classList.add('playing');
         } else {
-          titleEl.textContent = 'Not playing anything right now.';
-          artistEl.textContent = 'Spotify is currently paused.';
+          titleEl.textContent = 'I\'m playing anything right now.';
+          artistEl.textContent = 'I have Spotify currently paused. Come back later!';
           art.style.display = 'none';
           card.classList.remove('playing');
         }
