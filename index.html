@@ -82,10 +82,13 @@
     }
 
     /* --- MOTION GRAPHIC SCROLL CSS --- */
+    /* --- MOTION GRAPHIC SCROLL CSS --- */
     .reveal-on-scroll {
       opacity: 0;
       transform: translateY(30px);
-      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      /* Added a slight initial delay to ensure the browser has time to paint before animating */
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform; /* Optimization for smoother animations */
     }
     .reveal-on-scroll.is-visible {
       opacity: 1;
@@ -186,28 +189,32 @@
   </div> <!-- End Container -->
 
   <!-- SCROLL REVEAL SCRIPT -->
+  <!-- SCROLL REVEAL SCRIPT -->
   <script>
-    // Grab all major blocks to animate
-    const animatedElements = document.querySelectorAll('section, .card, header');
-    
-    // Set them to their hidden starting state
-    animatedElements.forEach((el) => el.classList.add('reveal-on-scroll'));
-  
-    // Watch for them entering the screen
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target); 
-        }
+    document.addEventListener("DOMContentLoaded", function() {
+      const animatedElements = document.querySelectorAll('header, section, .card');
+      
+      animatedElements.forEach((el) => {
+        el.classList.add('reveal-on-scroll');
       });
-    }, {
-      threshold: 0.1, 
-      rootMargin: "0px 0px -50px 0px" 
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Slight delay so you can actually see the animation happen on page load
+            setTimeout(() => {
+              entry.target.classList.add('is-visible');
+            }, 100); 
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.1, // Trigger when 10% visible
+        rootMargin: "0px" // Removed the negative margin so it triggers sooner
+      });
+
+      animatedElements.forEach((el) => observer.observe(el));
     });
-  
-    // Start watching
-    animatedElements.forEach((el) => observer.observe(el));
   </script>
 </body>
 </html>
