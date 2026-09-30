@@ -141,6 +141,10 @@
     #spotify-art { width: 64px; height: 64px; border-radius: 4px; display: none; }
     #spotify-title { font-weight: bold; margin-bottom: 2px; }
     #spotify-title a { color: inherit; text-decoration: none; }
+    /* Stretch the track link over the whole card so the entire panel is clickable */
+#spotify-title a[href]::after { content: ""; position: absolute; inset: 0; z-index: 2; }
+.spotify:has(a[href]) { cursor: pointer; }
+.spotify:has(a:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
     #spotify-artist { font-size: 0.9em; }
 
     /* ---------- Skill chips ---------- */
