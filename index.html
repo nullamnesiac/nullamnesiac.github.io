@@ -147,6 +147,8 @@
     .spotify:has(a:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
     #spotify-artist { font-size: 0.9em; }
 
+    .shot { display: block; width: 100%; max-width: 360px; border-radius: 4px; border: 1px solid var(--border); margin-bottom: 0.75rem; }
+
     /* ---------- Skill chips ---------- */
     .skill-group { margin-bottom: 1rem; }
     .skill-group h3 { font-size: 0.95rem; font-weight: 600; color: var(--heading); margin-bottom: 0.5rem; }
@@ -283,6 +285,23 @@
         </p>
         <div style="margin-top: 1rem;">
           <a class="src" href="https://github.com/nullamnesiac/spotify-widget-api" target="_blank" rel="noopener">View Source Code →</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Custom Touch Bar (MTMR)</h3>
+        <ul class="skills-list" style="margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          <li>AppleScript</li>
+          <li>Shell</li>
+          <li>JSON</li>
+        </ul>
+        <img class="shot" src="assets/touchbar.jpg" alt="My MacBook Touch Bar showing Spotify controls and the current track" loading="lazy">
+        <p>
+          A custom Touch Bar layout built with MTMR: Spotify playback with live track info,
+          a battery readout that parses <code>pmset</code> output, and gesture shortcuts.
+          Adapted from community examples and extended with my own scripting.
+        </p>
+        <div style="margin-top: 1rem;">
+          <a class="src" href="https://github.com/nullamnesiac/mtmr-touchbar-config" target="_blank" rel="noopener">View Source Code →</a>
         </div>
       </div>
     </section>
