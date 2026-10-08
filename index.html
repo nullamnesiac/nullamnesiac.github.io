@@ -1,482 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sameh Siddique | Computing Student</title>
+  <meta name="description" content="Portfolio of Sameh Siddique, a first-year Bachelor of Computing (Honours) student at Queen's University.">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="Sameh Siddique">
+  <meta property="og:description" content="First-year Bachelor of Computing (Honours) student at Queen's University. Projects with APIs, scripting, and a live Spotify widget.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nullamnesiac.github.io/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <noscript><style>.now { display: none; }</style></noscript>
   <style>
     :root {
-      --bg: #0d1117;
-      --card-bg: rgba(22, 27, 34, 0.72);
-      --text: #c9d1d9;
-      --heading: #f0f6fc;
-      --accent: #58a6ff;
-      --purple: #a371f7;
-      --green: #1db954;
-      --border: #30363d;
-      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --text: #1d1d1b;
+      --muted: #5c5b57;
+      --rule: #d9d6cc;
+      --link: #0b5cad;
+      --live: #1a8f43;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121413;
+        --surface: #1a1c1a;
+        --text: #e8e6df;
+        --muted: #a3a198;
+        --rule: #2c2e2b;
+        --link: #7ab7ff;
+        --live: #3ddc7a;
+      }
+    }
 
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      color: var(--text);
+      margin: 0;
       background: var(--bg);
-      line-height: 1.6;
-      padding: 2rem 1rem;
-      overflow-x: hidden;
+      color: var(--text);
+      font: 1rem/1.65 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
+    .wrap { max-width: 42rem; margin: 0 auto; padding: 3.5rem 1.25rem 4rem; }
 
-    /* ---------- Background layers ---------- */
-    .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-    .blob { position: absolute; border-radius: 50%; filter: blur(90px); will-change: transform; }
-    .b1 { width: 480px; height: 480px; background: #1f6feb; opacity: 0.35; top: -120px; left: -100px; animation: drift1 22s ease-in-out infinite alternate; }
-    .b2 { width: 420px; height: 420px; background: #8957e5; opacity: 0.30; top: 30%; right: -120px; animation: drift2 26s ease-in-out infinite alternate; }
-    .b3 { width: 380px; height: 380px; background: var(--green); opacity: 0.16; bottom: -120px; left: 25%; animation: drift3 30s ease-in-out infinite alternate; }
-    @keyframes drift1 { to { transform: translate(220px, 180px) scale(1.25); } }
-    @keyframes drift2 { to { transform: translate(-260px, 140px) scale(0.85); } }
-    @keyframes drift3 { to { transform: translate(180px, -200px) scale(1.2); } }
-
-    #bg { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
-
-    .cursor-glow {
-      position: fixed; top: 0; left: 0; width: 420px; height: 420px; z-index: 1;
-      pointer-events: none; border-radius: 50%;
-      background: radial-gradient(circle, rgba(88, 166, 255, 0.14), transparent 65%);
-      transform: translate(-999px, -999px);
+    h1, h2, h3 {
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      line-height: 1.2;
+      font-weight: 700;
+      margin: 0;
     }
+    h1 { font-size: clamp(2.1rem, 6vw, 2.9rem); letter-spacing: -0.01em; }
+    h2 { font-size: 1.5rem; margin-bottom: 1rem; }
+    h3 { font-size: 1.2rem; }
+    p { margin: 0 0 1rem; max-width: 62ch; }
 
-    .scroll-progress {
-      position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 9999;
-      background: linear-gradient(90deg, var(--accent), var(--purple), var(--green));
-      box-shadow: 0 0 12px var(--accent);
-      transition: width 0.1s ease-out;
+    a { color: var(--link); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+    a:hover { text-decoration-thickness: 2px; }
+    :focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 2px; }
+
+    .lead { font-size: 1.15rem; margin: 0.9rem 0 1.25rem; }
+    .links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 0; padding: 0; list-style: none; }
+
+    section { margin-top: 3.25rem; }
+
+    /* Spotify panel */
+    .now {
+      position: relative;
+      max-width: 26rem;
+      margin-top: 2rem;
+      padding: 1rem 1.1rem;
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
     }
-
-    .container { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; }
-
-    /* ---------- Hero ---------- */
-    header { margin-bottom: 2.5rem; }
-    h1 {
-      font-size: 2.6rem;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(90deg, #f0f6fc, var(--accent), var(--purple), #f0f6fc);
-      background-size: 300% 100%;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      animation: shimmer 8s linear infinite;
+    .now:has(a[href]) { cursor: pointer; }
+    .now:has(a[href]):hover { border-color: var(--muted); }
+    .now-head {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin: 0 0 0.75rem;
+      font-size: 0.9rem; color: var(--muted);
     }
-    @keyframes shimmer { to { background-position: -300% 0; } }
+    .now-head img { width: 20px; height: 20px; flex: none; }
+    .dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--muted); flex: none; }
+    .now.is-playing .dot { background: var(--live); }
+    .now-body { display: flex; align-items: center; gap: 0.9rem; }
+    .now-art { display: none; width: 64px; height: 64px; flex: none; border-radius: 2px; background: var(--rule); }
+    .now-title { margin: 0; font-weight: 600; line-height: 1.35; }
+    .now-title a { color: inherit; text-decoration: none; }
+    .now-title a[href]::after { content: ""; position: absolute; inset: 0; }
+    .now-artist { margin: 0.1rem 0 0; font-size: 0.95rem; color: var(--muted); }
 
-    p.lead { font-size: 1.1rem; margin-bottom: 0.5rem; }
-    .rotator { margin-bottom: 1rem; min-height: 1.6em; color: var(--heading); }
-    .rotator span { color: var(--accent); }
-    .rotator .caret {
-      display: inline-block; width: 2px; height: 1.1em; margin-left: 2px;
-      vertical-align: text-bottom; background: var(--accent);
-      animation: blink 1s steps(1) infinite;
+    /* Projects */
+    .project { padding: 1.5rem 0; border-top: 1px solid var(--rule); }
+    .project:last-child { padding-bottom: 0; }
+    .tags {
+      display: flex; flex-wrap: wrap;
+      margin: 0.35rem 0 0.9rem; padding: 0; list-style: none;
+      font: 0.85rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: var(--muted);
     }
-    @keyframes blink { 50% { opacity: 0; } }
-
-    .links a {
-      color: var(--accent); text-decoration: none; margin-right: 1.25rem; font-weight: 500;
-      background: linear-gradient(currentColor, currentColor) 0 100% / 0 2px no-repeat;
-      transition: background-size 0.35s var(--ease), color 0.3s ease;
-      padding-bottom: 2px;
+    .tags li + li::before { content: "/"; margin: 0 0.6ch; }
+    figure { margin: 1rem 0; }
+    figure img {
+      display: block; width: 100%; max-width: 360px; height: auto;
+      border: 1px solid var(--rule); border-radius: 2px;
     }
-    .links a:hover { color: #79c0ff; background-size: 100% 2px; }
+    figcaption { margin-top: 0.4rem; font-size: 0.85rem; color: var(--muted); }
 
-    /* ---------- Sections ---------- */
-    section { margin-bottom: 2.5rem; }
-    h2 { color: var(--heading); padding-bottom: 0.2rem; font-size: 1.4rem; }
-    h2::after {
-      content: ""; display: block; height: 2px; margin: 0.4rem 0 1rem;
-      background: linear-gradient(90deg, var(--accent), var(--purple), transparent);
-      transform: scaleX(0); transform-origin: left;
-      transition: transform 1.1s var(--ease) 0.2s;
-    }
-    .is-visible h2::after { transform: scaleX(1); }
-
-    /* ---------- Cards ---------- */
-    .card {
-      position: relative; overflow: hidden;
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-    }
-    .card::before {
-      content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
-      background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(88, 166, 255, 0.18), transparent 45%);
-      transition: opacity 0.3s ease;
-    }
-    .card:hover::before { opacity: 1; }
-    .card:hover { border-color: rgba(88, 166, 255, 0.5); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
-    .card h3 { color: var(--heading); margin-bottom: 0.25rem; }
-    .card a.src { color: var(--accent); text-decoration: none; font-weight: bold; }
-
-    /* Spotify widget */
-    .spotify { border-left: 4px solid var(--green); max-width: 400px; margin-bottom: 2rem; }
-    .spotify h3 { display: flex; align-items: center; gap: 8px; margin-top: 0; }
-    .spotify h3 img { flex-shrink: 0; width: 24px; height: 24px; }
-    .spotify.playing { animation: glow 2.4s ease-in-out infinite; }
-    @keyframes glow {
-      0%, 100% { box-shadow: 0 0 0 rgba(29, 185, 84, 0); }
-      50% { box-shadow: 0 0 26px rgba(29, 185, 84, 0.3); }
-    }
-    .eq { margin-left: auto; display: flex; align-items: flex-end; gap: 3px; height: 16px; opacity: 0; transition: opacity 0.4s; }
-    .playing .eq { opacity: 1; }
-    .eq i { width: 3px; height: 100%; background: var(--green); border-radius: 2px; transform-origin: bottom; transform: scaleY(0.3); }
-    .playing .eq i { animation: bounce 0.9s ease-in-out infinite; }
-    .eq i:nth-child(2) { animation-delay: 0.2s; }
-    .eq i:nth-child(3) { animation-delay: 0.4s; }
-    .eq i:nth-child(4) { animation-delay: 0.1s; }
-    @keyframes bounce { 0%, 100% { transform: scaleY(0.25); } 50% { transform: scaleY(1); } }
-
-    #spotify-content { display: flex; align-items: center; gap: 15px; margin-top: 15px; }
-    #spotify-art { width: 64px; height: 64px; border-radius: 4px; display: none; }
-    #spotify-title { font-weight: bold; margin-bottom: 2px; }
-    #spotify-title a { color: inherit; text-decoration: none; }
-    /* Stretch the track link over the whole card so the entire panel is clickable */
-    #spotify-title a[href]::after { content: ""; position: absolute; inset: 0; z-index: 2; }
-    .spotify:has(a[href]) { cursor: pointer; }
-    .spotify:has(a:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
-    #spotify-artist { font-size: 0.9em; }
-
-    .shot { display: block; width: 100%; max-width: 360px; border-radius: 4px; border: 1px solid var(--border); margin-bottom: 0.75rem; }
-
-    /* ---------- Skill chips ---------- */
-    .skill-group { margin-bottom: 1rem; }
-    .skill-group h3 { font-size: 0.95rem; font-weight: 600; color: var(--heading); margin-bottom: 0.5rem; }
-    .skills-list { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; }
-    .skills-list li {
-      background: var(--card-bg); border: 1px solid var(--border);
-      padding: 0.25rem 0.65rem; border-radius: 4px; font-size: 0.9rem;
-      transition: opacity 0.6s var(--ease), translate 0.6s var(--ease), background 0.3s ease, border-color 0.3s ease;
-      transition-delay: calc(var(--i, 0) * 70ms), calc(var(--i, 0) * 70ms), 0s, 0s;
-    }
-    .skills-list li:hover { background: var(--border); border-color: var(--accent); }
-    .reveal-on-scroll:not(.is-visible) .skills-list li { opacity: 0; translate: 0 12px; }
-
-    /* ---------- Scroll reveal (uses `translate` so it never fights the card tilt `transform`) ---------- */
-    .reveal-on-scroll {
-      opacity: 0; translate: 0 24px;
-      transition: opacity 0.9s var(--ease), translate 0.9s var(--ease), transform 0.25s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
-      will-change: opacity, translate;
-    }
-    .reveal-on-scroll.is-visible { opacity: 1; translate: 0 0; }
-
-    /* ---------- Reduced motion ---------- */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; }
-      .reveal-on-scroll { opacity: 1; translate: none; }
-      .reveal-on-scroll:not(.is-visible) .skills-list li { opacity: 1; translate: none; }
-      h2::after { transform: scaleX(1); }
-      #bg, .cursor-glow { display: none; }
+    /* Skills */
+    .skills { display: grid; grid-template-columns: 9.5rem 1fr; gap: 0.6rem 1rem; margin: 0; }
+    .skills dt { font-weight: 600; }
+    .skills dd { margin: 0; }
+    @media (max-width: 34rem) {
+      .skills { grid-template-columns: 1fr; gap: 0.1rem; }
+      .skills dd { margin-bottom: 0.8rem; }
     }
   </style>
 </head>
 <body>
-  <div class="scroll-progress" id="scroll-progress"></div>
-  <div class="aurora" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
-  <canvas id="bg" aria-hidden="true"></canvas>
-  <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
-
-  <div class="container">
+  <main class="wrap">
     <header>
       <h1>Sameh Siddique</h1>
-      <p class="lead">1st-Year Bachelor of Computing (Honours) Student at Queen's University.</p>
-      <p class="rotator">Interested in <span id="rotator"></span><i class="caret"></i></p>
-      <div class="links">
-        <a href="https://github.com/nullamnesiac" target="_blank" rel="noopener">GitHub</a>
-        <a href="mailto:siddiquesameh16@gmail.com">Email</a>
-        <a href="#projects">Projects</a>
+      <p class="lead">First-year Bachelor of Computing (Honours) student at Queen's University. I write Python and Java for coursework and build small tools with APIs and scripting on the side.</p>
+      <nav aria-label="Links">
+        <ul class="links">
+          <li><a href="https://github.com/nullamnesiac" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="mailto:siddiquesameh16@gmail.com">Email</a></li>
+          <li><a href="#projects">Projects</a></li>
+        </ul>
+      </nav>
+
+      <div class="now" id="now">
+        <p class="now-head">
+          <img src="assets/spotify-icon.svg" alt="Spotify" width="20" height="20">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="now-label">Spotify</span>
+        </p>
+        <div class="now-body">
+          <img class="now-art" id="now-art" alt="" width="64" height="64">
+          <div>
+            <p class="now-title" id="now-title">Checking Spotify...</p>
+            <p class="now-artist" id="now-artist"></p>
+          </div>
+        </div>
       </div>
     </header>
 
     <section id="about">
-      <h2>About Me</h2>
-      <p>
-        Undergraduate student with interests in software engineering, systems, DSA, and a lot of other things. I am currently expanding practical skills in Python and Java through my coursework and my personal projects.
-      </p>
-    </section>
-
-    <!-- Spotify Widget -->
-    <div class="card spotify" id="spotify-card">
-      <h3>
-        <img src="assets/spotify-icon.svg" alt="Spotify" width="24" height="24">
-        <span><span id="spotify-label">Currently listening to...</span><br><span id="spotify-sub">(yes its real-time!!)</span></span>
-        <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-      </h3>
-      <div id="spotify-content">
-        <img id="spotify-art" src="" alt="Album Art">
-        <div>
-          <p id="spotify-title">Loading Spotify status...</p>
-          <p id="spotify-artist"></p>
-        </div>
-      </div>
-    </div>
-
-    <section id="skills">
-      <h2>Technical Skills</h2>
-      <div class="skill-group">
-        <h3>Languages</h3>
-        <ul class="skills-list">
-          <li>Python</li>
-          <li>Java</li>
-          <li>JavaScript</li>
-          <li>HTML5</li>
-          <li>CSS3</li>
-        </ul>
-      </div>
-      <div class="skill-group">
-        <h3>Tools and platforms</h3>
-        <ul class="skills-list">
-          <li>Git &amp; GitHub</li>
-          <li>Node.js</li>
-          <li>Vercel</li>
-          <li>GitHub Pages</li>
-          <li>LaTeX (Overleaf)</li>
-        </ul>
-      </div>
-      <div class="skill-group">
-        <h3>Concepts</h3>
-        <ul class="skills-list">
-          <li>REST APIs</li>
-          <li>OAuth 2.0</li>
-          <li>JSON</li>
-          <li>Serverless functions</li>
-        </ul>
-      </div>
+      <h2>About</h2>
+      <p>I am interested in software engineering, systems, data structures and algorithms, web development, and games. Outside of coursework I am into photography and tech products.</p>
     </section>
 
     <section id="projects">
       <h2>Projects</h2>
-      <div class="card">
+
+      <article class="project">
         <h3>GitHub Profile Analyzer</h3>
-        <ul class="skills-list" style="margin-top: 0.5rem; margin-bottom: 0.75rem;">
-          <li>Python</li>
-          <li>REST APIs</li>
-          <li>JSON</li>
-        </ul>
-        <p>
-          A command-line tool that interfaces with the public GitHub API to extract, parse, and analyze developer repository metrics, including stargazers and language frequency data.
-        </p>
-        <div style="margin-top: 1rem;">
-          <a class="src" href="https://github.com/nullamnesiac/github-analyzer" target="_blank" rel="noopener">View Source Code →</a>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Spotify "Now Playing" Widget</h3>
-        <ul class="skills-list" style="margin-top: 0.5rem; margin-bottom: 0.75rem;">
-          <li>JavaScript</li>
-          <li>Spotify Web API</li>
-          <li>Serverless (Vercel)</li>
-        </ul>
-        <p>
-          A live widget on this site that shows the track I'm currently streaming on Spotify, and even displays the last song I was streaming! A small
-          serverless API on Vercel talks to the Spotify Web API so credentials stay off
-          the client, and the page polls it every 10 seconds to update the track, artist,
-          and album art, with separate states for paused and failed requests.
-        </p>
-        <div style="margin-top: 1rem;">
-          <a class="src" href="https://github.com/nullamnesiac/spotify-widget-api" target="_blank" rel="noopener">View Source Code →</a>
-        </div>
-      </div>
-      <div class="card">
+        <ul class="tags"><li>Python</li><li>REST APIs</li><li>JSON</li></ul>
+        <p>A command-line tool that reads a developer's public repositories from the GitHub API and reports metrics such as stargazer counts and language frequency.</p>
+        <p><a href="https://github.com/nullamnesiac/github-analyzer" target="_blank" rel="noopener">View source on GitHub</a></p>
+      </article>
+
+      <article class="project">
+        <h3>Spotify Now Playing Widget</h3>
+        <ul class="tags"><li>JavaScript</li><li>Spotify Web API</li><li>Vercel</li></ul>
+        <p>The widget at the top of this page. A small serverless API on Vercel talks to the Spotify Web API, so my credentials never reach the browser. The page asks it for my current track every 10 seconds, and when nothing is playing it shows the last track I played.</p>
+        <p><a href="https://github.com/nullamnesiac/spotify-widget-api" target="_blank" rel="noopener">View source on GitHub</a></p>
+      </article>
+
+      <article class="project">
         <h3>Custom Touch Bar (MTMR)</h3>
-        <ul class="skills-list" style="margin-top: 0.5rem; margin-bottom: 0.75rem;">
-          <li>AppleScript</li>
-          <li>Shell</li>
-          <li>JSON</li>
-        </ul>
-        <img class="shot" src="assets/touchbar.jpg" alt="My MacBook Touch Bar showing Spotify controls and the current track" loading="lazy">
-        <p>
-          A custom Touch Bar layout built with MTMR: Spotify playback with live track info,
-          a battery readout that parses <code>pmset</code> output, and gesture shortcuts.
-          Adapted from community examples and extended with my own scripting.
-        </p>
-        <div style="margin-top: 1rem;">
-          <a class="src" href="https://github.com/nullamnesiac/mtmr-touchbar-config" target="_blank" rel="noopener">View Source Code →</a>
-        </div>
-      </div>
+        <ul class="tags"><li>AppleScript</li><li>Shell</li><li>JSON</li></ul>
+        <figure>
+          <img src="assets/touchbar.jpg" alt="A MacBook Pro Touch Bar showing the Spotify icon and the current track name" width="360" height="240" loading="lazy">
+          <figcaption>My Touch Bar running this config.</figcaption>
+        </figure>
+        <p>A custom Touch Bar layout for MTMR. It shows the current Spotify track with play/pause and skip controls, a battery readout that parses <code>pmset</code> output, and swipe gestures. It is based on community presets and extended with my own AppleScript and shell code.</p>
+        <p><a href="https://github.com/nullamnesiac/mtmr-touchbar-config" target="_blank" rel="noopener">View source on GitHub</a></p>
+      </article>
     </section>
-  </div>
+
+    <section id="skills">
+      <h2>Technical Skills</h2>
+      <dl class="skills">
+        <dt>Languages</dt>
+        <dd>Python, Java, JavaScript, HTML5, CSS3</dd>
+        <dt>Tools and platforms</dt>
+        <dd>Git &amp; GitHub, Node.js, Vercel, GitHub Pages, LaTeX (Overleaf)</dd>
+        <dt>Concepts</dt>
+        <dd>REST APIs, OAuth 2.0, JSON, serverless functions</dd>
+      </dl>
+    </section>
+  </main>
 
   <script>
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-    /* ---------- Spotify widget ---------- */
-    const card = document.getElementById('spotify-card');
-    const art = document.getElementById('spotify-art');
-    const titleEl = document.getElementById('spotify-title');
-    const artistEl = document.getElementById('spotify-artist');
-
-    async function fetchNowPlaying() {
-      try {
-        const response = await fetch('https://portfolio-spotify-api-widget.vercel.app/api/now-playing');
-        const data = await response.json();
-
-        const label = document.getElementById('spotify-label');
-        const sub = document.getElementById('spotify-sub');
-
-        if (data.title) {
-          // Build elements with textContent/href (not innerHTML) so API data can't inject markup
-          art.src = data.albumImageUrl;
-          art.style.display = 'block';
-          titleEl.textContent = '';
-          const link = document.createElement('a');
-          link.textContent = data.title;
-          if (String(data.songUrl).startsWith('https://open.spotify.com/')) link.href = data.songUrl;
-          link.target = '_blank';
-          link.rel = 'noopener';
-          titleEl.appendChild(link);
-          artistEl.textContent = data.artist;
-          card.classList.toggle('playing', data.isPlaying);
-          label.textContent = data.isPlaying ? 'Currently listening to...' : 'Last played...';
-          sub.textContent = data.isPlaying ? '(yes its real-time!!)' : '(not playing right now)';
-        } else {
-          label.textContent = 'Currently listening to...';
-          sub.textContent = '(yes its real-time!!)';
-          titleEl.textContent = 'I\'m not playing anything right now.';
-          artistEl.textContent = 'I have Spotify currently paused. Come back later!';
-          art.style.display = 'none';
-          card.classList.remove('playing');
-        }
-      } catch (error) {
-        titleEl.textContent = 'Offline';
-        artistEl.textContent = 'Could not load Spotify data.';
-        card.classList.remove('playing');
-      }
-    }
-    fetchNowPlaying();
-    setInterval(fetchNowPlaying, 10000);
-
-    /* ---------- Scroll progress ---------- */
-    window.addEventListener('scroll', () => {
-      const y = document.documentElement.scrollTop;
-      const max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      document.getElementById('scroll-progress').style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
-    }, { passive: true });
-
-    /* ---------- Scroll reveal + chip stagger ---------- */
-    document.addEventListener('DOMContentLoaded', () => {
-      const els = document.querySelectorAll('header, section, .card');
-      els.forEach(el => el.classList.add('reveal-on-scroll'));
-      document.querySelectorAll('.skills-list').forEach(list =>
-        list.querySelectorAll('li').forEach((li, i) => li.style.setProperty('--i', i)));
-
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.1 });
-      els.forEach(el => observer.observe(el));
-    });
-
-    /* ---------- Typing rotator ---------- */
     (function () {
-      const el = document.getElementById('rotator');
-      const words = ['software engineering.', 'systems.', 'algorithms.', 'web development.', 'photography.', 'computers.', 'data structures.', 'games.', 'programming.', 'tech products.'];
-      if (reduce) { el.textContent = words.join(' '); return; }
-      let w = 0, c = 0, deleting = false;
-      (function tick() {
-        const word = words[w];
-        c += deleting ? -1 : 1;
-        el.textContent = word.slice(0, c);
-        let delay = deleting ? 40 : 85;
-        if (!deleting && c === word.length) { deleting = true; delay = 1500; }
-        else if (deleting && c === 0) { deleting = false; w = (w + 1) % words.length; delay = 350; }
-        setTimeout(tick, delay);
-      })();
-    })();
+      var API = 'https://portfolio-spotify-api-widget.vercel.app/api/now-playing';
+      var box = document.getElementById('now');
+      var label = document.getElementById('now-label');
+      var art = document.getElementById('now-art');
+      var title = document.getElementById('now-title');
+      var artist = document.getElementById('now-artist');
+      var timer = null;
 
-    /* ---------- Card spotlight + 3D tilt ---------- */
-    document.querySelectorAll('.card').forEach(c => {
-      c.addEventListener('pointermove', e => {
-        const r = c.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width;
-        const py = (e.clientY - r.top) / r.height;
-        c.style.setProperty('--mx', px * 100 + '%');
-        c.style.setProperty('--my', py * 100 + '%');
-        if (finePointer && !reduce) {
-          c.style.transform = `perspective(800px) rotateX(${(0.5 - py) * 7}deg) rotateY(${(px - 0.5) * 7}deg) translateY(-3px)`;
+      function setState(text, playing) {
+        label.textContent = text;
+        box.classList.toggle('is-playing', playing);
+      }
+
+      function showMessage(line1, line2) {
+        title.textContent = line1;
+        artist.textContent = line2;
+        art.style.display = 'none';
+        art.removeAttribute('src');
+        art.alt = '';
+      }
+
+      async function load() {
+        try {
+          var response = await fetch(API);
+          if (!response.ok) throw new Error('Bad response');
+          var data = await response.json();
+
+          if (data && data.title) {
+            // Build the link with textContent and href so API data is never parsed as HTML
+            title.textContent = '';
+            var link = document.createElement('a');
+            link.textContent = data.title;
+            if (typeof data.songUrl === 'string' && data.songUrl.indexOf('https://open.spotify.com/') === 0) {
+              link.href = data.songUrl;
+              link.target = '_blank';
+              link.rel = 'noopener';
+            }
+            title.appendChild(link);
+            artist.textContent = data.artist || '';
+
+            if (typeof data.albumImageUrl === 'string' && data.albumImageUrl.indexOf('https://') === 0) {
+              art.src = data.albumImageUrl;
+              art.alt = 'Album art for ' + data.title;
+              art.style.display = 'block';
+            } else {
+              art.style.display = 'none';
+            }
+            setState(data.isPlaying ? 'Playing now' : 'Last played', !!data.isPlaying);
+          } else {
+            setState('Spotify', false);
+            showMessage('Nothing is playing right now.', 'No recent track is available.');
+          }
+        } catch (error) {
+          setState('Spotify', false);
+          showMessage('Could not load Spotify data.', 'Try again later.');
         }
+      }
+
+      function start() { load(); timer = setInterval(load, 10000); }
+      function stop() { clearInterval(timer); timer = null; }
+
+      // Stop polling while the tab is hidden, and refresh as soon as it is visible again
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { stop(); } else if (timer === null) { start(); }
       });
-      c.addEventListener('pointerleave', () => { c.style.transform = ''; });
-    });
-
-    /* ---------- Cursor glow ---------- */
-    if (finePointer && !reduce) {
-      const glow = document.getElementById('cursor-glow');
-      window.addEventListener('pointermove', e => {
-        glow.style.transform = `translate(${e.clientX - 210}px, ${e.clientY - 210}px)`;
-      }, { passive: true });
-    }
-
-    /* ---------- Particle network (reacts to the cursor) ---------- */
-    (function () {
-      if (reduce) return;
-      const canvas = document.getElementById('bg');
-      const ctx = canvas.getContext('2d');
-      const mouse = { x: -9999, y: -9999 };
-      let w, h, dpr, pts = [];
-
-      function resize() {
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
-        w = canvas.width = innerWidth * dpr;
-        h = canvas.height = innerHeight * dpr;
-        canvas.style.width = innerWidth + 'px';
-        canvas.style.height = innerHeight + 'px';
-        const n = Math.min(70, Math.floor(innerWidth / 18));
-        pts = Array.from({ length: n }, () => ({
-          x: Math.random() * w, y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.35 * dpr, vy: (Math.random() - 0.5) * 0.35 * dpr
-        }));
-      }
-      resize();
-      window.addEventListener('resize', resize);
-      window.addEventListener('pointermove', e => { mouse.x = e.clientX * dpr; mouse.y = e.clientY * dpr; }, { passive: true });
-
-      function frame() {
-        if (!document.hidden) {
-          ctx.clearRect(0, 0, w, h);
-          const link = 140 * dpr, near = 180 * dpr;
-          for (const p of pts) {
-            p.x += p.vx; p.y += p.vy;
-            if (p.x < 0 || p.x > w) p.vx *= -1;
-            if (p.y < 0 || p.y > h) p.vy *= -1;
-            ctx.fillStyle = 'rgba(88,166,255,0.6)';
-            ctx.beginPath(); ctx.arc(p.x, p.y, 1.6 * dpr, 0, 6.283); ctx.fill();
-          }
-          for (let i = 0; i < pts.length; i++) {
-            for (let j = i + 1; j < pts.length; j++) {
-              const d = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y);
-              if (d < link) {
-                ctx.strokeStyle = `rgba(88,166,255,${0.22 * (1 - d / link)})`;
-                ctx.lineWidth = dpr;
-                ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
-              }
-            }
-            const dm = Math.hypot(pts[i].x - mouse.x, pts[i].y - mouse.y);
-            if (dm < near) {
-              ctx.strokeStyle = `rgba(163,113,247,${0.5 * (1 - dm / near)})`;
-              ctx.lineWidth = dpr;
-              ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
-            }
-          }
-        }
-        requestAnimationFrame(frame);
-      }
-      frame();
+      start();
     })();
   </script>
 </body>
