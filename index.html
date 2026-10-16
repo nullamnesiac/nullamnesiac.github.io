@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sameh Siddique | Computing Student</title>
   <meta name="description" content="Portfolio of Sameh Siddique, a first-year Bachelor of Computing (Honours) student at Queen's University.">
-  <meta name="color-scheme" content="light dark">
+  <meta name="color-scheme" content="dark">
   <meta property="og:title" content="Sameh Siddique">
   <meta property="og:description" content="First-year Bachelor of Computing (Honours) student at Queen's University. Projects with APIs, scripting, and a live Spotify widget.">
   <meta property="og:type" content="website">
@@ -16,36 +16,28 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <noscript><style>.now { display: none; }</style></noscript>
   <style>
+    /* One palette only: the page is black, so every colour is chosen for a dark background */
     :root {
-      --bg: #f7f6f2;
-      --surface: #ffffff;
-      --text: #1d1d1b;
-      --muted: #5c5b57;
-      --rule: #d9d6cc;
-      --link: #0b5cad;
-      --live: #1a8f43;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #121413;
-        --surface: #1a1c1a;
-        --text: #e8e6df;
-        --muted: #a3a198;
-        --rule: #2c2e2b;
-        --link: #7ab7ff;
-        --live: #3ddc7a;
-      }
+      --bg: #000;
+      --surface: #0d0e0d;
+      --text: #e8e6df;
+      --muted: #a3a198;
+      --rule: #2c2e2b;
+      --link: #7ab7ff;
+      --live: #3ddc7a;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
+    html { -webkit-text-size-adjust: 100%; background: var(--bg); }
     body {
       margin: 0;
       background: var(--bg);
-      color: var(--text);
+      color: #fff;
       font: 1rem/1.65 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow-x: hidden;
+      position: relative;
     }
-    .wrap { max-width: 42rem; margin: 0 auto; padding: 3.5rem 1.25rem 4rem; }
+    .wrap { max-width: 42rem; margin: 0 auto; padding: 3.5rem 1.25rem 4rem; position: relative; z-index: 2; }
 
     h1, h2, h3 {
       font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
@@ -67,6 +59,16 @@
 
     section { margin-top: 3.25rem; }
 
+    /* Background: a grid of small plus signs, drawn on one canvas (see script) */
+    #plus-field {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
     /* Spotify panel */
     .now {
       position: relative;
@@ -76,6 +78,7 @@
       background: var(--surface);
       border: 1px solid var(--rule);
       border-radius: 4px;
+      overflow: hidden;
     }
     .now:has(a[href]) { cursor: pointer; }
     .now:has(a[href]):hover { border-color: var(--muted); }
@@ -94,6 +97,10 @@
     .now-title a[href]::after { content: ""; position: absolute; inset: 0; }
     .now-artist { margin: 0.1rem 0 0; font-size: 0.95rem; color: var(--muted); }
 
+    /* Waveform: shown only while a track is playing */
+    .wave { display: none; width: 100%; height: 36px; margin-top: 0.9rem; color: var(--live); }
+    .now.is-playing .wave { display: block; }
+
     /* Projects */
     .project { padding: 1.5rem 0; border-top: 1px solid var(--rule); }
     .project:last-child { padding-bottom: 0; }
@@ -111,17 +118,59 @@
     }
     figcaption { margin-top: 0.4rem; font-size: 0.85rem; color: var(--muted); }
 
+    /* Photography carousel (the whole section and its nav link stay hidden until at least one .slide exists) */
+    .photos:not(:has(.slide)), body:not(:has(.slide)) .nav-photo { display: none; }
+    .track {
+      display: flex; gap: 1rem;
+      margin: 0; padding: 0; list-style: none;
+      overflow-x: auto; overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory; scroll-behavior: smooth;
+      scrollbar-width: thin;
+    }
+    .slide { flex: 0 0 100%; scroll-snap-align: start; }
+    .slide figure { margin: 0; }
+    .slide img {
+      display: block; width: 100%; max-width: none; aspect-ratio: 3 / 2; object-fit: contain;
+      background: var(--surface); border: 1px solid var(--rule); border-radius: 2px;
+    }
+    .slide figcaption { margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .controls { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.9rem; }
+    .controls[hidden] { display: none; }
+    .controls button {
+      font: inherit; font-size: 0.9rem; line-height: 1.2;
+      padding: 0.4rem 0.9rem; border: 1px solid var(--rule); border-radius: 2px;
+      background: var(--surface); color: #fff; cursor: pointer;
+    }
+    .controls button:hover:not(:disabled) { border-color: var(--muted); }
+    .controls button:disabled { opacity: 0.45; cursor: default; }
+    .position { margin-left: auto; font: 0.85rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--muted); }
+
     /* Skills */
     .skills { display: grid; grid-template-columns: 9.5rem 1fr; gap: 0.6rem 1rem; margin: 0; }
     .skills dt { font-weight: 600; }
     .skills dd { margin: 0; }
+    .skills dd a {
+      color: var(--text);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--muted);
+      padding-bottom: 1px;
+    }
+    .skills dd a:hover {
+      border-bottom-style: solid;
+      color: var(--link);
+    }
     @media (max-width: 34rem) {
       .skills { grid-template-columns: 1fr; gap: 0.1rem; }
       .skills dd { margin-bottom: 0.8rem; }
     }
+    @media (prefers-reduced-motion: reduce) {
+      .track { scroll-behavior: auto; }
+    }
   </style>
 </head>
 <body>
+  <canvas id="plus-field" aria-hidden="true"></canvas>
+
   <main class="wrap">
     <header>
       <h1>Sameh Siddique</h1>
@@ -129,8 +178,12 @@
       <nav aria-label="Links">
         <ul class="links">
           <li><a href="https://github.com/nullamnesiac" target="_blank" rel="noopener">GitHub</a></li>
+          <!-- LinkedIn: remove the comment markers and paste your profile URL
+          <li><a href="https://www.linkedin.com/in/YOUR-PROFILE/" target="_blank" rel="noopener">LinkedIn</a></li>
+          -->
           <li><a href="mailto:siddiquesameh16@gmail.com">Email</a></li>
           <li><a href="#projects">Projects</a></li>
+          <li class="nav-photo"><a href="#photography">Photography</a></li>
         </ul>
       </nav>
 
@@ -147,6 +200,7 @@
             <p class="now-artist" id="now-artist"></p>
           </div>
         </div>
+        <canvas class="wave" id="wave" aria-hidden="true"></canvas>
       </div>
     </header>
 
@@ -184,20 +238,219 @@
       </article>
     </section>
 
+    <section id="photography" class="photos">
+      <h2>Photography</h2>
+      <div class="carousel" role="region" aria-roledescription="carousel" aria-label="Photography">
+        <ul class="track" id="photo-track" tabindex="0">
+          <!-- Add a photo by copying this block inside the list:
+          <li class="slide"><figure><img src="photos/NAME.jpg" alt="Describe what the photo shows" loading="lazy"><figcaption>Optional caption</figcaption></figure></li>
+          -->
+        </ul>
+        <div class="controls" id="photo-controls" hidden>
+          <button type="button" id="photo-prev">Previous</button>
+          <button type="button" id="photo-next">Next</button>
+          <span class="position" id="photo-position" aria-live="polite"></span>
+        </div>
+      </div>
+    </section>
+
     <section id="skills">
       <h2>Technical Skills</h2>
       <dl class="skills">
         <dt>Languages</dt>
-        <dd>Python, Java, JavaScript, HTML5, CSS3</dd>
+        <dd>
+          <a href="https://www.python.org/" target="_blank" rel="noopener">Python</a>,
+          <a href="https://www.java.com/" target="_blank" rel="noopener">Java</a>,
+          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noopener">JavaScript</a>,
+          <a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noopener">HTML5</a>,
+          <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank" rel="noopener">CSS3</a>
+        </dd>
         <dt>Tools and platforms</dt>
-        <dd>Git &amp; GitHub, Node.js, Vercel, GitHub Pages</dd>
+        <dd>
+          <a href="https://git-scm.com/" target="_blank" rel="noopener">Git</a> &amp;
+          <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>,
+          <a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a>,
+          <a href="https://vercel.com/" target="_blank" rel="noopener">Vercel</a>,
+          <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a>
+        </dd>
         <dt>Concepts</dt>
-        <dd>REST APIs, OAuth 2.0, JSON, serverless functions</dd>
+        <dd>
+          <a href="https://restfulapi.net/" target="_blank" rel="noopener">REST APIs</a>,
+          <a href="https://oauth.net/2/" target="_blank" rel="noopener">OAuth 2.0</a>,
+          <a href="https://www.json.org/json-en.html" target="_blank" rel="noopener">JSON</a>,
+          <a href="https://en.wikipedia.org/wiki/Serverless_computing" target="_blank" rel="noopener">serverless functions</a>
+        </dd>
       </dl>
     </section>
   </main>
 
   <script>
+    /* ---------- Background: plus signs that grow and brighten near the cursor ---------- */
+    (function () {
+      var canvas = document.getElementById('plus-field');
+      var ctx = canvas.getContext('2d');
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var SPACING = 52;      // pixels between plus signs (smaller number = more of them)
+      var ARM = 4.5;         // half the length of one plus sign, in pixels (bigger number = bigger plus signs)
+      var RADIUS = 290;      // how far from the cursor the effect reaches
+      var MAX_SCALE = 2.1;   // size of a plus sign right under the cursor
+      var BASE_ALPHA = 0;    // resting brightness
+      var MAX_ALPHA = 0.8;   // brightness right under the cursor
+      var DRIFT = 10;        // pixels the whole grid slowly drifts
+      var TURN = 6.283;      // full 360 spin (2 * PI) when cursor is near
+
+      var pts = [], w = 0, h = 0, dpr = 1, raf = 0, last = 0;
+      var mouse = { x: -9999, y: -9999 };
+
+      // Stable pseudo-random numbers, so each plus sign keeps the same small variation when the window is resized
+      function hash(n) { var s = Math.sin(n * 127.1) * 43758.5453; return s - Math.floor(s); }
+
+      function build() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        pts = [];
+        var cols = Math.ceil(w / SPACING) + 2;
+        var rows = Math.ceil(h / SPACING) + 2;
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var id = r * 1000 + c;
+            pts.push({
+              x: c * SPACING + SPACING / 2,
+              y: r * SPACING + SPACING / 2,
+              turn: 0.75 + hash(id + 0.1) * 0.5,            // each plus sign turns a little more or less than the others
+              k: 0                                          // how close the cursor is, smoothed from 0 to 1
+            });
+          }
+        }
+      }
+
+      function draw(t, dt) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        var follow = 1 - Math.exp(-dt * 9);
+        // One shared drift for the whole grid, so every plus sign moves together and the rows stay straight
+        var ox = 0;
+        if (!reduce) {
+          var ph = (t / 25) % 2;
+          var q = ph < 1 ? ph : 2 - ph;
+          ox = DRIFT * q * q * (3 - 2 * q);
+        }
+        for (var i = 0; i < pts.length; i++) {
+          var p = pts[i];
+          var x = p.x + ox, y = p.y + ox;
+          var d = Math.hypot(x - mouse.x, y - mouse.y);
+          var target = d < RADIUS ? 1 - d / RADIUS : 0;
+          p.k = reduce ? target : p.k + (target - p.k) * follow;
+          var e = p.k * p.k * p.k; // exponential ramp in
+          var scaleE = Math.sin(p.k * Math.PI * 1.5); // bounce easing out effect
+          var arm = ARM * (reduce ? 1 : 1 + (MAX_SCALE - 1) * Math.max(e, scaleE));
+          ctx.strokeStyle = 'rgba(255,255,255,' + (BASE_ALPHA + (MAX_ALPHA - BASE_ALPHA) * e).toFixed(3) + ')';
+          var ang = reduce ? 0 : (p.k * p.k * 6.283 + Math.sin(p.k * Math.PI * 2) * 0.3) * p.turn;
+          var ca = Math.cos(ang) * arm, sa = Math.sin(ang) * arm;
+          ctx.beginPath();
+          ctx.moveTo(x - ca, y - sa); ctx.lineTo(x + ca, y + sa);
+          ctx.moveTo(x + sa, y - ca); ctx.lineTo(x - sa, y + ca);
+          ctx.stroke();
+        }
+      }
+
+      function frame(now) {
+        var dt = last ? Math.min((now - last) / 1000, 0.1) : 0.016;
+        last = now;
+        draw(now / 1000, dt);
+        raf = requestAnimationFrame(frame);
+      }
+
+      function start() {
+        if (reduce) { draw(0, 0.016); return; }
+        if (!raf && !document.hidden) { last = 0; raf = requestAnimationFrame(frame); }
+      }
+      function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+      window.addEventListener('pointermove', function (e) {
+        mouse.x = e.clientX; mouse.y = e.clientY;
+        if (reduce) draw(0, 0.016);
+      }, { passive: true });
+      function away() { mouse.x = -9999; mouse.y = -9999; if (reduce) draw(0, 0.016); }
+      document.documentElement.addEventListener('mouseleave', away);
+      window.addEventListener('pointerup', function (e) { if (e.pointerType !== 'mouse') away(); });
+      window.addEventListener('pointercancel', away);
+
+      var resizeTimer = 0;
+      window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () { build(); if (reduce) draw(0, 0.016); }, 120);
+      });
+      document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
+
+      build();
+      start();
+    })();
+
+    /* ---------- Waveform in the Spotify panel (decorative, not real audio data) ---------- */
+    var Wave = (function () {
+      var cv = document.getElementById('wave');
+      var cx = cv.getContext('2d');
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var BAR = 2, GAP = 3;
+      var running = false, raf = 0, w = 0, h = 0, dpr = 1, color = '#3ddc7a', t0 = performance.now();
+
+      function size() {
+        var r = cv.getBoundingClientRect();
+        if (!r.width) return false;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = r.width; h = r.height;
+        cv.width = Math.round(w * dpr);
+        cv.height = Math.round(h * dpr);
+        color = getComputedStyle(cv).color;
+        return true;
+      }
+
+      function draw(t) {
+        cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cx.clearRect(0, 0, w, h);
+        cx.fillStyle = color;
+        var n = Math.floor((w + GAP) / (BAR + GAP));
+        if (n < 2) return;
+        var x0 = (w - (n * (BAR + GAP) - GAP)) / 2;
+        for (var i = 0; i < n; i++) {
+          var s = Math.sin(i * 0.33 + t * 2.2) + 0.8 * Math.sin(i * 0.14 - t * 1.4) + 0.4 * Math.sin(i * 0.77 + t * 3.4);
+          var norm = (s / 2.2 + 1) / 2;                       // 0 to 1
+          var u = i / (n - 1);
+          var edge = Math.min(1, Math.min(u, 1 - u) / 0.12);  // taper the two ends
+          edge = edge * edge * (3 - 2 * edge);
+          var bh = Math.max(2, Math.pow(norm, 1.5) * edge * h);
+          cx.fillRect(x0 + i * (BAR + GAP), (h - bh) / 2, BAR, bh);
+        }
+      }
+
+      function frame(now) {
+        draw((now - t0) / 1000);
+        if (running) raf = requestAnimationFrame(frame);
+      }
+
+      function start() {
+        if (running) return;
+        if (!size()) return;
+        running = true;
+        if (reduce) { draw(0); return; }
+        raf = requestAnimationFrame(frame);
+      }
+      function stop() { running = false; if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+      if (window.ResizeObserver) {
+        new ResizeObserver(function () { if (running && size()) draw((performance.now() - t0) / 1000); }).observe(cv);
+      }
+      return { start: start, stop: stop };
+    })();
+
+    /* ---------- Spotify widget ---------- */
     (function () {
       var API = 'https://portfolio-spotify-api-widget.vercel.app/api/now-playing';
       var box = document.getElementById('now');
@@ -210,6 +463,8 @@
       function setState(text, playing) {
         label.textContent = text;
         box.classList.toggle('is-playing', playing);
+        // The class change makes the canvas visible, so start it afterwards
+        if (playing) { Wave.start(); } else { Wave.stop(); }
       }
 
       function showMessage(line1, line2) {
@@ -265,6 +520,48 @@
         if (document.hidden) { stop(); } else if (timer === null) { start(); }
       });
       start();
+    })();
+
+    /* ---------- Photography carousel ---------- */
+    (function () {
+      var track = document.getElementById('photo-track');
+      if (!track) return;
+      var slides = track.querySelectorAll('.slide');
+      var n = slides.length;
+      if (!n) return;
+
+      var controls = document.getElementById('photo-controls');
+      var prev = document.getElementById('photo-prev');
+      var next = document.getElementById('photo-next');
+      var pos = document.getElementById('photo-position');
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var ticking = false;
+
+      controls.hidden = n < 2;
+
+      function step() { return n > 1 ? slides[1].offsetLeft - slides[0].offsetLeft : track.clientWidth; }
+      function current() { return Math.max(0, Math.min(n - 1, Math.round(track.scrollLeft / step()))); }
+
+      function update() {
+        var i = current();
+        prev.disabled = i === 0;
+        next.disabled = i === n - 1;
+        pos.textContent = (i + 1) + ' of ' + n;
+        ticking = false;
+      }
+
+      function go(i) {
+        i = Math.max(0, Math.min(n - 1, i));
+        track.scrollTo({ left: i * step(), behavior: reduce ? 'auto' : 'smooth' });
+      }
+
+      prev.addEventListener('click', function () { go(current() - 1); });
+      next.addEventListener('click', function () { go(current() + 1); });
+      track.addEventListener('scroll', function () {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      }, { passive: true });
+      window.addEventListener('resize', update);
+      update();
     })();
   </script>
 </body>
