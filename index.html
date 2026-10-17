@@ -6,7 +6,7 @@
   <title>Sameh Siddique | Computing Student</title>
   <meta name="description" content="Portfolio of Sameh Siddique, a first-year Bachelor of Computing (Honours) student at Queen's University.">
   <meta name="color-scheme" content="dark">
-  <meta property="og:title" content="Sameh Siddique">
+  <meta property="og:title" content="Sameh Siddique.">
   <meta property="og:description" content="First-year Bachelor of Computing (Honours) student at Queen's University. Projects with APIs, scripting, and a live Spotify widget.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://nullamnesiac.github.io/">
@@ -169,11 +169,143 @@
   </style>
 </head>
 <body>
+  <div id="splash-screen">
+    <div class="splash-content">
+      <span class="splash-text">nullamnesiac.</span>
+      <div class="splash-bar"></div>
+    </div>
+  </div>
+  <style>
+    #splash-screen {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: clip-path 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+      clip-path: inset(0 0 0 0);
+    }
+    #splash-screen.hide {
+      clip-path: inset(0 0 100% 0);
+    }
+    .splash-content {
+      position: relative;
+      text-align: center;
+    }
+    .splash-text {
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.01em;
+      display: inline-block;
+      animation: splashPulse 1.2s cubic-bezier(0.77, 0, 0.175, 1) infinite alternate;
+    }
+    .splash-bar {
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      height: 3px;
+      width: 100%;
+      background: #ffffff;
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: splashBar 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+    }
+    @keyframes splashPulse {
+      0% { transform: scale(0.98); opacity: 0.8; }
+      100% { transform: scale(1.02); opacity: 1; }
+    }
+    @keyframes splashBar {
+      0% { transform: scaleX(0); }
+      50% { transform: scaleX(1); transform-origin: left; }
+      50.1% { transform-origin: right; }
+      100% { transform: scaleX(0); transform-origin: right; }
+    }
+  </style>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        splash.classList.add('hide');
+        // Trigger main name animation precisely when the splash screen curtains up
+        setTimeout(() => {
+          const container = document.getElementById('name-container');
+          if (container) container.classList.add('animate');
+        }, 1400);
+      }, 1400);
+    });
+  </script>
+
   <canvas id="plus-field" aria-hidden="true"></canvas>
 
   <main class="wrap">
     <header>
-      <h1>Sameh Siddique</h1>
+      <div id="name-container">
+        <span class="name-text original">nullamnesiac.</span>
+        <span class="name-text new">Sameh Siddique.</span>
+        <span class="highlighter"></span>
+      </div>
+      <style>
+        #name-container {
+          position: relative;
+          display: inline-block;
+          font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+          font-weight: 700;
+          font-size: clamp(2.1rem, 6vw, 2.9rem);
+          letter-spacing: -0.01em;
+          line-height: 1.2;
+        }
+        .name-text {
+          display: block;
+          white-space: nowrap;
+        }
+        .name-text.original {
+          color: #fff;
+          z-index: 1;
+        }
+        .name-text.new {
+          position: absolute;
+          top: 0;
+          left: 0;
+          color: #000;
+          z-index: 3;
+          clip-path: inset(0 100% 0 0);
+        }
+        .highlighter {
+          position: absolute;
+          top: -0.05em;
+          left: 0;
+          height: 1.1em;
+          width: 0%;
+          background: #fff;
+          z-index: 2;
+          transition: width 0.75s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        #name-container.animate .highlighter {
+          width: 125%;
+        }
+        #name-container.animate .new {
+          clip-path: inset(0 100% 0 0);
+          animation: reveal 0.75s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+        }
+        #name-container.animate .original {
+          opacity: 1;
+          animation: hideOriginal 0s 0.75s forwards;
+        }
+        @keyframes hideOriginal {
+          to { opacity: 0; }
+        }
+        @keyframes reveal {
+          0% { clip-path: inset(0 100% 0 0); }
+          100% { clip-path: inset(0 0 0 0); }
+        }
+      </style>
+      <script>
+        // Triggered after splash screen
+      </script>
       <p class="lead">First-year Bachelor of Computing (Honours) student at Queen's University. I write Python and Java for coursework and build small tools with APIs and scripting on the side.</p>
       <nav aria-label="Links">
         <ul class="links">
@@ -183,7 +315,6 @@
           -->
           <li><a href="mailto:siddiquesameh16@gmail.com">Email</a></li>
           <li><a href="#projects">Projects</a></li>
-          <li class="nav-photo"><a href="#photography">Photography</a></li>
         </ul>
       </nav>
 
@@ -236,22 +367,6 @@
         <p>A custom Touch Bar layout for MTMR. It shows the current Spotify track with play/pause and skip controls, a battery readout that parses <code>pmset</code> output, and swipe gestures. It is based on community presets and extended with my own AppleScript and shell code.</p>
         <p><a href="https://github.com/nullamnesiac/mtmr-touchbar-config" target="_blank" rel="noopener">View source on GitHub</a></p>
       </article>
-    </section>
-
-    <section id="photography" class="photos">
-      <h2>Photography</h2>
-      <div class="carousel" role="region" aria-roledescription="carousel" aria-label="Photography">
-        <ul class="track" id="photo-track" tabindex="0">
-          <!-- Add a photo by copying this block inside the list:
-          <li class="slide"><figure><img src="photos/NAME.jpg" alt="Describe what the photo shows" loading="lazy"><figcaption>Optional caption</figcaption></figure></li>
-          -->
-        </ul>
-        <div class="controls" id="photo-controls" hidden>
-          <button type="button" id="photo-prev">Previous</button>
-          <button type="button" id="photo-next">Next</button>
-          <span class="position" id="photo-position" aria-live="polite"></span>
-        </div>
-      </div>
     </section>
 
     <section id="skills">
