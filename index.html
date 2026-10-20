@@ -14,6 +14,7 @@
   <link rel="icon" href="favicon.ico" sizes="48x48">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <script>document.documentElement.classList.add("js");</script>
   <noscript><style>.now { display: none; }</style></noscript>
   <style>
     /* One palette only: the page is black, so every colour is chosen for a dark background */
@@ -54,8 +55,58 @@
     a:hover { text-decoration-thickness: 2px; }
     :focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 2px; }
 
-    .lead { font-size: 1.15rem; margin: 0.9rem 0 1.25rem; }
-    .links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 0; padding: 0; list-style: none; }
+    .lead { font-size: 1.15rem; margin: 0.9rem 0 0.7rem; }
+    .interests { margin: 0 0 1.25rem; color: var(--muted); }
+    .links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 0.9rem; margin: 0; padding: 0; list-style: none; }
+
+    /* Frosted glass, shared by the link tiles and the panels. The page script sets --mx and --my to the
+       cursor position inside each one, which places the shine. Tiles also tilt toward the cursor. */
+    .tile, .now, .project, .skills {
+      position: relative; isolation: isolate;
+      background: rgba(255, 255, 255, 0.06);
+      -webkit-backdrop-filter: blur(14px) saturate(1.5);
+      backdrop-filter: blur(14px) saturate(1.5);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.05),
+        0 10px 22px rgba(0, 0, 0, 0.65);
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .tile::before, .now::before, .project::before, .skills::before {   /* fixed sheen, top left */
+      content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 48%);
+    }
+    .tile::after, .now::after, .project::after, .skills::after {       /* shine under the cursor */
+      content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+      background: radial-gradient(circle var(--r, 240px) at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 70%);
+      opacity: 0; transition: opacity 0.25s ease;
+    }
+    .tile:hover::after, .now:hover::after, .project:hover::after, .skills:hover::after { opacity: 1; }
+    .tile:hover, .now:hover, .project:hover, .skills:hover { border-color: rgba(255, 255, 255, 0.28); background-color: rgba(255, 255, 255, 0.08); }
+
+    .tile {
+      --r: 70px; --rx: 0deg; --ry: 0deg; --lift: 0px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem;
+      width: 4rem; height: 4rem;
+      color: #fff; text-decoration: none;
+      transform: perspective(500px) translateY(var(--lift)) rotateX(var(--rx)) rotateY(var(--ry));
+      transition: transform 0.12s ease-out, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .tile span { font: 0.66rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.03em; color: var(--text); }
+    .tile:hover { --lift: -3px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.07), 0 14px 26px rgba(0, 0, 0, 0.75); }
+    .tile:active { --lift: 1px; }
+    .tile:focus-visible { outline-offset: 4px; border-radius: 12px; }
+    @media (max-width: 30rem) { .tile { width: 3.6rem; height: 3.6rem; } .tile span { font-size: 0.6rem; } }
+    @media (prefers-reduced-motion: reduce) { .tile { transition: none; } }
+
+    /* Panels */
+    .now { padding: 1rem 1.1rem; }
+    .project { margin: 0 0 1rem; padding: 1.25rem 1.4rem; }
+    .project:last-child { margin-bottom: 0; padding-bottom: 1.25rem; }
+    .skills { padding: 1.25rem 1.4rem; }
 
     section { margin-top: 3.25rem; }
 
@@ -71,17 +122,11 @@
 
     /* Spotify panel */
     .now {
-      position: relative;
       max-width: 26rem;
       margin-top: 2rem;
-      padding: 1rem 1.1rem;
-      background: var(--surface);
-      border: 1px solid var(--rule);
-      border-radius: 4px;
       overflow: hidden;
     }
     .now:has(a[href]) { cursor: pointer; }
-    .now:has(a[href]):hover { border-color: var(--muted); }
     .now-head {
       display: flex; align-items: center; gap: 0.5rem;
       margin: 0 0 0.75rem;
@@ -102,8 +147,6 @@
     .now.is-playing .wave { display: block; }
 
     /* Projects */
-    .project { padding: 1.5rem 0; border-top: 1px solid var(--rule); }
-    .project:last-child { padding-bottom: 0; }
     .tags {
       display: flex; flex-wrap: wrap;
       margin: 0.35rem 0 0.9rem; padding: 0; list-style: none;
@@ -130,8 +173,14 @@
     .slide { flex: 0 0 100%; scroll-snap-align: start; }
     .slide figure { margin: 0; }
     .slide img {
-      display: block; width: 100%; max-width: none; aspect-ratio: 3 / 2; object-fit: contain;
+      display: block; width: 100%; max-width: none; aspect-ratio: 4 / 3; object-fit: contain;
       background: var(--surface); border: 1px solid var(--rule); border-radius: 2px;
+    }
+    .track:focus-visible { outline-offset: 4px; }
+    .eyebrow {
+      margin: 0 0 0.35rem;
+      font: 0.8rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
     }
     .slide figcaption { margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted); }
     .controls { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.9rem; }
@@ -166,155 +215,326 @@
     @media (prefers-reduced-motion: reduce) {
       .track { scroll-behavior: auto; }
     }
+
+    /* Intro. Default (no JavaScript, or reduced motion): the plain name, no splash.
+       The splash and the highlight sweep only exist when scripts run and motion is allowed. */
+    #splash-screen { display: none; }
+    .name { display: inline-grid; margin: 0; }
+    .name > span { grid-area: 1 / 1; white-space: nowrap; }
+    .name .from, .name .sweep { display: none; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      html.js #splash-screen { position: fixed; inset: 0; z-index: 9999; display: block; }
+      .splash-bg { position: absolute; inset: 0; background: #000; }
+      .splash-content { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; }
+      /* Same font, size and line height as the h1, so the text can fly straight onto it with no resize */
+      .splash-text {
+        display: inline-block; white-space: nowrap;
+        font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+        font-size: clamp(2.1rem, 6vw, 2.9rem); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: #fff;
+        animation: splashPulse 1.2s cubic-bezier(0.77, 0, 0.175, 1) infinite alternate;
+      }
+      /* Water layer, drawn on a canvas: a flowing white tail and stretched droplets that trail the flying text */
+      .water { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+      @keyframes splashPulse { 0% { transform: scale(0.98); opacity: 0.8; } 100% { transform: scale(1.02); opacity: 1; } }
+
+      /* Name: "nullamnesiac." sits there, a white highlight sweeps across it carrying the real name
+         in black, holds, then wipes away to the right and leaves the name in white. */
+      html.js .name .from { display: block; color: #fff; visibility: hidden; }
+      html.js .name.landed .from { visibility: visible; }
+      html.js .name .to { clip-path: inset(0 100% 0 0); }
+      html.js .name .sweep { display: block; background: #fff; color: #000; clip-path: inset(0 100% 0 0); }
+      html.js .name.go .from { animation: nameHideFrom 0s 0.9s forwards; }
+      html.js .name.go .sweep {
+        animation: nameIn 0.9s cubic-bezier(0.77, 0, 0.175, 1) forwards,
+                   nameOut 0.8s cubic-bezier(0.77, 0, 0.175, 1) 1.5s forwards;
+      }
+      html.js .name.go .to { animation: nameIn 0.8s cubic-bezier(0.77, 0, 0.175, 1) 1.5s forwards; }
+      html.js .name.out .sweep { animation: nameOut 0.8s cubic-bezier(0.77, 0, 0.175, 1) 0.5s forwards; }
+      html.js .name.out .to { animation: nameIn 0.8s cubic-bezier(0.77, 0, 0.175, 1) 0.5s forwards; }
+      @keyframes nameHideFrom { to { visibility: hidden; } }
+      @keyframes nameIn  { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+      @keyframes nameOut { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
+    }
   </style>
 </head>
 <body>
-  <div id="splash-screen">
+  <div id="splash-screen" aria-hidden="true">
+    <div class="splash-bg"></div>
     <div class="splash-content">
       <span class="splash-text">nullamnesiac.</span>
-      <div class="splash-bar"></div>
     </div>
   </div>
-  <style>
-    #splash-screen {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: clip-path 1.2s cubic-bezier(0.77, 0, 0.175, 1);
-      clip-path: inset(0 0 0 0);
-    }
-    #splash-screen.hide {
-      clip-path: inset(0 0 100% 0);
-    }
-    .splash-content {
-      position: relative;
-      text-align: center;
-    }
-    .splash-text {
-      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.01em;
-      display: inline-block;
-      animation: splashPulse 1.2s cubic-bezier(0.77, 0, 0.175, 1) infinite alternate;
-    }
-    .splash-bar {
-      position: absolute;
-      bottom: -10px;
-      left: 0;
-      height: 3px;
-      width: 100%;
-      background: #ffffff;
-      transform: scaleX(0);
-      transform-origin: left;
-      animation: splashBar 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
-    }
-    @keyframes splashPulse {
-      0% { transform: scale(0.98); opacity: 0.8; }
-      100% { transform: scale(1.02); opacity: 1; }
-    }
-    @keyframes splashBar {
-      0% { transform: scaleX(0); }
-      50% { transform: scaleX(1); transform-origin: left; }
-      50.1% { transform-origin: right; }
-      100% { transform: scaleX(0); transform-origin: right; }
-    }
-  </style>
   <script>
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const splash = document.getElementById('splash-screen');
-        splash.classList.add('hide');
-        // Trigger main name animation precisely when the splash screen curtains up
-        setTimeout(() => {
-          const container = document.getElementById('name-container');
-          if (container) container.classList.add('animate');
-        }, 1400);
-      }, 1400);
-    });
+    /* Splash, played once the page has loaded: a loading bar becomes a ball that circles the name twice while the
+       name travels to the h1, then the highlight sweep into the real name begins. */
+    (function () {
+      var splash = document.getElementById('splash-screen');
+      if (!splash) return;
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var started = false;
+
+      // landed: the real h1 text is now showing. sweepNow: run the plain CSS highlight sweep (used when there is no flight)
+      function finish(sweepNow) {
+        var name = document.getElementById('name');
+        if (name) {
+          name.classList.add('landed');
+          if (sweepNow) name.classList.add('go');
+        }
+        if (splash.parentNode) splash.parentNode.removeChild(splash);
+      }
+
+      function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+      function smooth(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+      function outBack(x) { var c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); }
+      function lerp(p, q, k) { return p + (q - p) * k; }
+
+      /* The sequence is authored, not simulated: every shape is a fixed function of time.
+         1. a loading bar draws itself to the right under the name
+         2. the front of the bar becomes a ball and the rest of the bar trails behind it as a tail
+         3. the ball swings round the name twice and a bit, like something on a string: wide at first, then pulled
+            in closer, quicker across the top and bottom, slowing as it goes, while the name travels to the h1
+         4. the ball's momentum carries it down and round into the left edge of the name, where it flattens into the
+            leading edge of the highlight and drags the highlight across the name, revealing "Sameh Siddique." */
+      function fly() {
+        var name = document.getElementById('name');
+        var from = name && name.querySelector('.from');
+        var sweep = name && name.querySelector('.sweep');
+        var text = splash.querySelector('.splash-text');
+        var bg = splash.querySelector('.splash-bg');
+        var cv = document.createElement('canvas');
+        var ctx = cv.getContext && cv.getContext('2d');
+        if (reduce || !from || !sweep || !text || !bg || !text.animate || !ctx) { finish(true); return; }
+
+        text.style.animation = 'none';
+        text.style.opacity = '1';
+        var a = text.getBoundingClientRect();
+        var b = from.getBoundingClientRect();
+        var dx = b.left - a.left, dy = b.top - a.top;
+        var len = Math.hypot(dx, dy) || 1, BOW = Math.min(70, len * 0.18);
+        var cx0 = a.left + a.width / 2, cy0 = a.top + a.height / 2;
+        var hw = a.width / 2, hh = a.height / 2;
+        var BR = 13, HEAD = 5;                                    // ball radius, and the size of the bead at the front of the bar when loading ends
+
+        // The swing is an ellipse round the name that tightens as it goes. It starts at the right-hand end of the bar.
+        var RX0 = hw + 60, RY0 = hh + 30, RX1 = hw + 26, RY1 = hh + 24;
+        var thS = Math.acos(hw / RX0);                            // start angle: the point of the first ellipse above the bar's right end
+        var thE = -5 * Math.PI + 0.9;                             // end angle: upper left of the name, heading down and left
+        var barY = cy0 + RY0 * Math.sin(thS);
+
+        var dpr = Math.min(window.devicePixelRatio || 1, 2), VW = window.innerWidth, VH = window.innerHeight;
+        cv.className = 'water';
+        cv.width = Math.round(VW * dpr); cv.height = Math.round(VH * dpr);
+        splash.insertBefore(cv, splash.querySelector('.splash-content'));
+
+        // path of the name's centre for eased progress e (0 to 1); bows sideways, lands exactly at the end
+        function P(e) {
+          var bow = BOW * Math.sin(Math.PI * e);
+          return { x: cx0 + dx * e - (dy / len) * bow, y: cy0 + dy * e + (dx / len) * bow };
+        }
+
+        var LOAD = 900, DUR = 2300, ENTER = 300, SWEEP = 850;
+        var T_SPIN = LOAD, T_SEL = LOAD + DUR, T_SW = T_SEL + ENTER, T_END = T_SW + SWEEP + 160;
+        var V0 = 3 * 2 * hw / (LOAD / 1000);                       // px/s of the bar's front edge when loading ends (width ~ u^3)
+
+        // Angle of the ball for every millisecond of the swing. It turns anticlockwise (right along the bottom, then up),
+        // slows down over time (like a swing losing energy) and is quicker across the top and bottom than at the ends.
+        function integrate(k) {
+          var arr = new Float32Array(DUR + 1), th = thS, i, u;
+          arr[0] = th;
+          for (i = 1; i <= DUR; i++) { u = (i - 1) / DUR; th -= k * (1 - 0.55 * u) * (1 - 0.4 * Math.cos(2 * th)) * 0.001; arr[i] = th; }
+          return arr;
+        }
+        var lo = 1, hi = 60, TH;
+        for (var it = 0; it < 26; it++) {                          // find the speed that ends the swing at exactly thE
+          var mid = (lo + hi) / 2;
+          if (integrate(mid)[DUR] > thE) lo = mid; else hi = mid;
+        }
+        TH = integrate((lo + hi) / 2);
+
+        // the swing: ball position at time sm (ms since the swing began)
+        function swingAt(sm) {
+          var i = Math.min(DUR, sm), f = Math.floor(i), th = TH[f] + (TH[Math.min(DUR, f + 1)] - TH[f]) * (i - f);
+          var u = Math.min(1, sm / DUR), ee = ease(u), c = P(ee);
+          var rx = lerp(RX0, RX1, ee), ry = lerp(RY0, RY1, ee);
+          return { x: c.x + rx * Math.cos(th), y: c.y + ry * Math.sin(th), th: th };
+        }
+        // the hand-off: from the end of the swing, in a curve that keeps going down and left and then hooks round
+        // into the left edge of the name heading right (cubic Bezier), then straight across the name
+        var E0 = swingAt(DUR), tangentX = -Math.sin(E0.th) * (RX1 / RY1), tangentY = Math.cos(E0.th) * 1;
+        // velocity of the anticlockwise swing is (rx sin th, -ry cos th) scaled; normalise it
+        var vx = RX1 * Math.sin(E0.th), vy = -RY1 * Math.cos(E0.th), vl = Math.hypot(vx, vy) || 1; vx /= vl; vy /= vl;
+        var midY = b.top + b.height / 2;
+        var E1 = { x: b.left - 1, y: midY };
+        var K0 = 70, K1 = 60;
+        var c1 = { x: E0.x + vx * K0, y: E0.y + vy * K0 }, c2 = { x: E1.x - K1, y: E1.y };
+        function bez(t) {
+          var m = 1 - t;
+          return { x: m * m * m * E0.x + 3 * m * m * t * c1.x + 3 * m * t * t * c2.x + t * t * t * E1.x,
+                   y: m * m * m * E0.y + 3 * m * m * t * c1.y + 3 * m * t * t * c2.y + t * t * t * E1.y };
+        }
+        var XEND = b.left + b.width;
+        // ball position at any time, all phases (sm = ms since the swing began; negative = still on the bar)
+        function ballAt(sm) {
+          if (sm < 0) return { x: cx0 + hw + V0 * sm / 1000, y: barY };
+          if (sm <= DUR) return swingAt(sm);
+          var se = sm - DUR;
+          if (se < ENTER) { var q = se / ENTER; return bez(Math.pow(q, 1.6)); }
+          var r = Math.min(1, (se - ENTER) / SWEEP), e3 = 1 - Math.pow(1 - r, 3);   // fast at first, easing off: the momentum drains away
+          return { x: E1.x + (XEND - E1.x) * e3, y: midY };
+        }
+
+        var t0 = null, landed = false, fading = false, closed = false;
+        function frame(now) {
+          if (t0 === null) t0 = now;
+          var ms = now - t0;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, VW, VH);
+          ctx.fillStyle = '#fff';
+
+          if (ms < T_SPIN) {
+            // 1. loading bar, drawn left to right and speeding up
+            var lu = ms / LOAD, bw = Math.max(0.5, 2 * hw * lu * lu * lu);
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(cx0 - hw, barY - 1.5, bw, 3, 1.5); else ctx.rect(cx0 - hw, barY - 1.5, bw, 3);
+            ctx.fill();
+            // as the bar speeds up, a small bead gathers at its front: the start of the ball
+            ctx.beginPath(); ctx.arc(cx0 - hw + bw, barY, lerp(1.5, HEAD, lu * lu * lu), 0, Math.PI * 2); ctx.fill();
+            requestAnimationFrame(frame); return;
+          }
+
+          var sm = ms - T_SPIN, u = Math.min(1, sm / DUR);
+          var C = P(ease(u));
+          if (!landed) text.style.transform = 'translate(' + (C.x - cx0) + 'px,' + (C.y - cy0) + 'px)';
+          if (!fading && u > 0.3) {
+            fading = true;
+            bg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: DUR * 0.6, easing: 'ease-in-out', fill: 'forwards' });
+          }
+          var GATHER = 520;
+          var gather = ease(Math.min(1, sm / GATHER));              // 0 to 1 as the bar's body is pulled into the ball
+          var morph = gather;
+          var se = sm - DUR, hand = Math.max(0, Math.min(1, se / ENTER));   // 0 during the swing, 1 once the ball reaches the name
+
+          // tail: a ribbon through where the ball has just been. At the start it is as long as the bar (the whole bar
+          // is being pulled along), then it settles to a shorter comet tail, and it is drawn back in during the hand-off.
+          // The bar's rear end is pulled forward faster than the ball moves, so the bar shortens into the ball (which swells
+          // as it takes in the bar), and then the tail is drawn out again as the ball picks up speed.
+          var barSpan = 2 * hw / V0 * 1000, gathered = 120;
+          var span = (sm < GATHER ? lerp(barSpan, gathered, gather) : lerp(gathered, 300, ease(Math.min(1, (sm - GATHER) / 800)))) * (1 - ease(hand));
+          var N = 56, pts = [], k;
+          for (k = 0; k <= N; k++) pts.push(ballAt(sm - span * (1 - k / N)));
+          var Lp = [], Rp = [];
+          for (k = 0; k <= N; k++) {
+            var p0 = pts[Math.max(0, k - 1)], p1 = pts[Math.min(N, k + 1)];
+            var tx = p1.x - p0.x, ty = p1.y - p0.y, tl = Math.hypot(tx, ty) || 1;
+            var nx = -ty / tl, ny = tx / tl;
+            var full = 9 * Math.pow(k / N, 0.7) * (0.88 + 0.12 * Math.sin(k * 0.9 - ms * 0.012));
+            var ww = Math.max(1.2, lerp(1.5, full, morph));
+            Lp.push({ x: pts[k].x + nx * ww, y: pts[k].y + ny * ww });
+            Rp.push({ x: pts[k].x - nx * ww, y: pts[k].y - ny * ww });
+          }
+          if (span > 4) {
+            ctx.beginPath();
+            ctx.moveTo(Lp[0].x, Lp[0].y);
+            for (k = 1; k <= N; k++) ctx.lineTo(Lp[k].x, Lp[k].y);
+            for (k = N; k >= 0; k--) ctx.lineTo(Rp[k].x, Rp[k].y);
+            ctx.closePath(); ctx.fill();
+          }
+
+          // the ball: stretched along its direction of travel; once it is inside the name it flattens into a thin
+          // upright edge exactly as tall as the name, which is the leading edge of the highlight
+          var q = pts[N], q0 = pts[N - 1], dir = Math.atan2(q.y - q0.y, q.x - q0.x);
+          var sp = Math.hypot(q.x - q0.x, q.y - q0.y);
+          var rb = lerp(HEAD, BR, gather);
+          var rx = rb * (1 + Math.min(0.6, sp / 40)), ry = rb * (1 - 0.12 * Math.min(1, sp / 40));
+          var ssw = (sm - DUR - ENTER);                              // ms into the sweep (negative before it)
+          if (ssw > 0) {
+            var f = ease(Math.min(1, ssw / 140));
+            rx = lerp(rx, 3, f); ry = lerp(ry, b.height / 2, f); dir = lerp(dir, 0, f);
+            var out = Math.max(0, Math.min(1, (ssw - SWEEP) / 150));  // at the far end the edge melts away
+            rx *= (1 - out);
+          }
+          ctx.beginPath();
+          ctx.ellipse(q.x, q.y, Math.max(0.01, rx), Math.max(0.01, ry), dir, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (u >= 1 && !landed) {
+            landed = true;
+            cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:10000;pointer-events:none';
+            document.body.appendChild(cv);                      // keep drawing above the page
+            finish(false);                                       // the real h1 text is now exactly where the flying text ended
+          }
+
+          // the highlight: its right-hand edge follows the ball
+          if (ssw > 0) {
+            var pr = Math.max(0, Math.min(1, (q.x - b.left) / b.width));
+            sweep.style.clipPath = 'inset(0 ' + ((1 - pr) * 100).toFixed(2) + '% 0 0)';
+            if (pr >= 1 && !closed) {
+              closed = true;
+              sweep.style.clipPath = 'inset(0 0 0 0)';
+              from.style.visibility = 'hidden';
+              name.classList.add('out');                         // hold for a moment, then wipe away to leave the name in white
+            }
+          }
+          if (ms < T_END) { requestAnimationFrame(frame); return; }
+          if (!closed) { closed = true; sweep.style.clipPath = 'inset(0 0 0 0)'; from.style.visibility = 'hidden'; name.classList.add('out'); }
+          if (cv.parentNode) cv.parentNode.removeChild(cv);
+        }
+        requestAnimationFrame(frame);
+      }
+      function run() {
+        if (started) return;
+        started = true;
+        fly();
+      }
+      if (document.readyState === 'complete') run(); else window.addEventListener('load', run);
+      setTimeout(run, 4000); // do not hold the page if a slow image delays the load event
+    })();
   </script>
 
   <canvas id="plus-field" aria-hidden="true"></canvas>
 
   <main class="wrap">
     <header>
-      <div id="name-container">
-        <span class="name-text original">nullamnesiac.</span>
-        <span class="name-text new">Sameh Siddique.</span>
-        <span class="highlighter"></span>
-      </div>
-      <style>
-        #name-container {
-          position: relative;
-          display: inline-block;
-          font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-          font-weight: 700;
-          font-size: clamp(2.1rem, 6vw, 2.9rem);
-          letter-spacing: -0.01em;
-          line-height: 1.2;
-        }
-        .name-text {
-          display: block;
-          white-space: nowrap;
-        }
-        .name-text.original {
-          color: #fff;
-          z-index: 1;
-        }
-        .name-text.new {
-          position: absolute;
-          top: 0;
-          left: 0;
-          color: #000;
-          z-index: 3;
-          clip-path: inset(0 100% 0 0);
-        }
-        .highlighter {
-          position: absolute;
-          top: -0.05em;
-          left: 0;
-          height: 1.1em;
-          width: 0%;
-          background: #fff;
-          z-index: 2;
-          transition: width 0.75s cubic-bezier(0.77, 0, 0.175, 1);
-        }
-        #name-container.animate .highlighter {
-          width: 125%;
-        }
-        #name-container.animate .new {
-          clip-path: inset(0 100% 0 0);
-          animation: reveal 0.75s cubic-bezier(0.77, 0, 0.175, 1) forwards;
-        }
-        #name-container.animate .original {
-          opacity: 1;
-          animation: hideOriginal 0s 0.75s forwards;
-        }
-        @keyframes hideOriginal {
-          to { opacity: 0; }
-        }
-        @keyframes reveal {
-          0% { clip-path: inset(0 100% 0 0); }
-          100% { clip-path: inset(0 0 0 0); }
-        }
-      </style>
-      <script>
-        // Triggered after splash screen
-      </script>
+      <h1 class="name" id="name">
+        <span class="from" aria-hidden="true">nullamnesiac.</span>
+        <span class="sweep" aria-hidden="true">Sameh Siddique.</span>
+        <span class="to">Sameh Siddique.</span>
+      </h1>
       <p class="lead">First-year Bachelor of Computing (Honours) student at Queen's University. I write Python and Java for coursework and build small tools with APIs and scripting on the side.</p>
+      <p class="interests">I am interested in software engineering, systems, data structures and algorithms, web development, and games. Outside of coursework I am into photography and tech products.</p>
       <nav aria-label="Links">
         <ul class="links">
-          <li><a href="https://github.com/nullamnesiac" target="_blank" rel="noopener">GitHub</a></li>
-          <!-- LinkedIn: remove the comment markers and paste your profile URL
-          <li><a href="https://www.linkedin.com/in/YOUR-PROFILE/" target="_blank" rel="noopener">LinkedIn</a></li>
-          -->
-          <li><a href="mailto:siddiquesameh16@gmail.com">Email</a></li>
-          <li><a href="#projects">Projects</a></li>
+          <li>
+            <a class="tile" href="https://github.com/nullamnesiac" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+              <span>GitHub</span>
+            </a>
+          </li>
+          <li>
+            <a class="tile" href="https://www.linkedin.com/in/sameh-siddique-8742963a4/" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><rect x="3.5" y="9" width="3.5" height="11"/><circle cx="5.25" cy="5" r="2"/><path d="M10 9h3.3v1.6c.6-1.1 1.9-1.9 3.6-1.9 3 0 3.6 2 3.6 4.6V20H17v-5.8c0-1.4-.3-2.4-1.7-2.4-1.5 0-2.1 1.1-2.1 2.5V20H10z"/></svg>
+              <span>LinkedIn</span>
+            </a>
+          </li>
+          <li>
+            <a class="tile" href="#projects">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="8 7 3 12 8 17"/><polyline points="16 7 21 12 16 17"/><line x1="14" y1="5" x2="10" y2="19"/></svg>
+              <span>Projects</span>
+            </a>
+          </li>
+          <li>
+            <a class="tile" href="mailto:siddiquesameh16@gmail.com">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3.5 7 12 13 20.5 7"/></svg>
+              <span>Email</span>
+            </a>
+          </li>
+          <li class="nav-photo">
+            <a class="tile" href="#photography">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><polyline points="21 16 15.5 11 6 20"/></svg>
+              <span>Photos</span>
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -335,9 +555,28 @@
       </div>
     </header>
 
-    <section id="about">
-      <h2>About</h2>
-      <p>I am interested in software engineering, systems, data structures and algorithms, web development, and games. Outside of coursework I am into photography and tech products.</p>
+    <!-- Instagram carousel. It stays hidden until you add at least one <li class="slide"> below.
+         Save each photo into the assets/photos folder, then copy the example <li> once per photo.
+         Describe what is in the photo in the alt text. Photos are never cropped.
+         To link to your Instagram, add: <a href="https://www.instagram.com/YOUR-HANDLE/" target="_blank" rel="noopener">@YOUR-HANDLE</a> -->
+    <section id="photography" class="photos" aria-labelledby="photo-heading">
+      <p class="eyebrow">As seen on Instagram</p>
+      <h2 id="photo-heading">Photography</h2>
+      <ul class="track" id="photo-track" tabindex="0" aria-label="Photo carousel, scroll sideways">
+        <!-- Example slide (remove the comment markers to use):
+        <li class="slide">
+          <figure>
+            <img src="assets/photos/photo-1.jpg" alt="Describe the photo here" loading="lazy">
+            <figcaption>Where or when it was taken</figcaption>
+          </figure>
+        </li>
+        -->
+      </ul>
+      <div class="controls" id="photo-controls" hidden>
+        <button type="button" id="photo-prev" aria-label="Previous photo">Previous</button>
+        <button type="button" id="photo-next" aria-label="Next photo">Next</button>
+        <span class="position" id="photo-position" aria-live="polite"></span>
+      </div>
     </section>
 
     <section id="projects">
@@ -508,6 +747,32 @@
       start();
     })();
 
+    /* ---------- Frosted panels: shine follows the cursor, and the link tiles tilt toward it ---------- */
+    (function () {
+      if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var TILT = 14; // degrees at the very edge of a tile
+      document.querySelectorAll('.tile, .now, .project, .skills').forEach(function (el) {
+        var tile = el.classList.contains('tile');
+        // A tile moves when it tilts, so measure the box around it (which stays put) to avoid jitter
+        var area = tile ? el.parentNode : el;
+        area.addEventListener('pointermove', function (e) {
+          var r = area.getBoundingClientRect();
+          var x = e.clientX - r.left, y = e.clientY - r.top;
+          el.style.setProperty('--mx', x + 'px');
+          el.style.setProperty('--my', y + 'px');
+          if (tile && !reduce) {
+            el.style.setProperty('--ry', ((x / r.width - 0.5) * 2 * TILT).toFixed(1) + 'deg');
+            el.style.setProperty('--rx', (-(y / r.height - 0.5) * 2 * TILT).toFixed(1) + 'deg');
+          }
+        });
+        area.addEventListener('pointerleave', function () {
+          el.style.removeProperty('--rx');
+          el.style.removeProperty('--ry');
+        });
+      });
+    })();
+
     /* ---------- Waveform in the Spotify panel (decorative, not real audio data) ---------- */
     var Wave = (function () {
       var cv = document.getElementById('wave');
@@ -582,6 +847,21 @@
         if (playing) { Wave.start(); } else { Wave.stop(); }
       }
 
+      // "5 min ago", "3 hr ago" (minutes dropped after an hour), "Yesterday", "4 days ago", then a plain date
+      function ago(iso) {
+        var then = typeof iso === 'string' ? Date.parse(iso) : NaN;
+        if (isNaN(then)) return '';
+        var min = Math.floor((Date.now() - then) / 60000);
+        if (min < 1) return 'just now';
+        if (min < 60) return min + ' min ago';
+        var hr = Math.floor(min / 60);
+        if (hr < 24) return hr + ' hr ago';
+        var days = Math.floor(hr / 24);
+        if (days === 1) return 'yesterday';
+        if (days < 7) return days + ' days ago';
+        return new Date(then).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+      }
+
       function showMessage(line1, line2) {
         title.textContent = line1;
         artist.textContent = line2;
@@ -616,7 +896,8 @@
             } else {
               art.style.display = 'none';
             }
-            setState(data.isPlaying ? 'Playing now' : 'Last played', !!data.isPlaying);
+            var when = data.isPlaying ? '' : ago(data.playedAt);
+            setState(data.isPlaying ? 'Playing now' : (when ? 'Last played ' + when : 'Last played'), !!data.isPlaying);
           } else {
             setState('Spotify', false);
             showMessage('Nothing is playing right now.', 'No recent track is available.');
