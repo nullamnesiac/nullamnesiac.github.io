@@ -1110,13 +1110,65 @@
       var buttons = tabs.querySelectorAll('button');
       var foot = box.querySelector('.now-foot');
 
-      function setView(view) {
+      var ORDER = ['now', 'artists', 'tracks', 'albums'];
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      var EASE = 'cubic-bezier(0.2, 0.7, 0.2, 1)';
+      var current = null, token = 0, boxAnim = null, running = [];
+
+      function paneFor(view) { return box.querySelector('.now-pane[data-pane="' + view + '"]'); }
+
+      // The instant part of a switch: which pane, tab, footer and attribute are active
+      function apply(view) {
         box.setAttribute('data-view', view);
-        buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-view') === view)); });
         panes.forEach(function (p) { p.hidden = p.getAttribute('data-pane') !== view; });
         foot.querySelector('.foot-spotify').hidden = view !== 'now';
         foot.querySelector('.foot-lastfm').hidden = view === 'now';
         if (view === 'now' && box.classList.contains('is-playing')) Wave.start();
+      }
+
+      function cancelAll() {
+        running.forEach(function (a) { try { a.cancel(); } catch (e) {} });
+        running = [];
+        if (boxAnim) { try { boxAnim.cancel(); } catch (e) {} boxAnim = null; }
+      }
+
+      // Fade the old pane out, swap, grow or shrink the panel to the new height, then ease the new pane in.
+      // A newer click cancels whatever is still running, so rapid clicking never leaves things half-way.
+      function setView(view) {
+        buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-view') === view)); });
+        if (view === current) return;
+        var from = current, dir = from === null ? 0 : (ORDER.indexOf(view) > ORDER.indexOf(from) ? 1 : -1);
+        current = view;
+        var my = ++token;
+        cancelAll();
+
+        if (from === null || reduceMotion.matches || !box.animate) { apply(view); return; }
+
+        var h0 = box.offsetHeight;
+        var oldPane = paneFor(from);
+        var leave = oldPane.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(' + (-dir * 10) + 'px)' }],
+          { duration: 140, easing: 'ease-in', fill: 'forwards' });
+        running.push(leave);
+        leave.onfinish = function () {
+          if (my !== token) return;
+          cancelAll();
+          apply(view);
+          var h1 = box.offsetHeight;
+          if (h1 !== h0) {
+            boxAnim = box.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: 380, easing: EASE });
+            boxAnim.onfinish = function () { boxAnim = null; };
+          }
+          var pane = paneFor(view), rows = pane.querySelectorAll('.top-list li');
+          if (rows.length) {
+            rows.forEach(function (li, i) {
+              running.push(li.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }],
+                { duration: 340, delay: 60 + i * 55, easing: EASE, fill: 'backwards' }));
+            });
+          } else {
+            running.push(pane.animate([{ opacity: 0, transform: 'translateX(' + (dir * 12) + 'px)' }, { opacity: 1, transform: 'none' }],
+              { duration: 340, easing: EASE }));
+          }
+        };
       }
       buttons.forEach(function (b) { b.addEventListener('click', function () { setView(b.getAttribute('data-view')); }); });
 
