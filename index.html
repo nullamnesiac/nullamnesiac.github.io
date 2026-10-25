@@ -405,6 +405,30 @@
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var started = false;
 
+      // A reload makes the browser put the page back where it was scrolled to, but the splash is measured against
+      // the top of the page. So take over scroll restoration and hold the page at the top until the splash is done.
+      var holdTop = !reduce && getComputedStyle(splash).display !== 'none';
+      var SCROLL_KEYS = [32, 33, 34, 35, 36, 37, 38, 39, 40];
+      function toTop() { window.scrollTo(0, 0); }
+      function block(e) { if (e.type !== 'keydown' || SCROLL_KEYS.indexOf(e.keyCode) !== -1) e.preventDefault(); }
+      function release() {
+        window.removeEventListener('scroll', toTop);
+        window.removeEventListener('wheel', block);
+        window.removeEventListener('touchmove', block);
+        window.removeEventListener('keydown', block);
+      }
+      if (holdTop) {
+        try { history.scrollRestoration = 'manual'; } catch (e) {}
+        toTop();
+        // Scrolling during the splash would move the name's destination, so it is switched off until the splash ends
+        // (the scroll listener is only a backup for anything that gets past these, such as dragging the scrollbar)
+        window.addEventListener('wheel', block, { passive: false });
+        window.addEventListener('touchmove', block, { passive: false });
+        window.addEventListener('keydown', block);
+        window.addEventListener('scroll', toTop, { passive: true });
+        setTimeout(release, 9000);   // failsafe: never hold the page longer than the whole sequence
+      }
+
       // landed: the real h1 text is now showing. sweepNow: run the plain CSS highlight sweep (used when there is no flight)
       function finish(sweepNow) {
         var name = document.getElementById('name');
@@ -413,6 +437,7 @@
           if (sweepNow) name.classList.add('go');
         }
         if (splash.parentNode) splash.parentNode.removeChild(splash);
+        if (sweepNow) release();   // with a flight, the page stays fixed until the highlight has crossed the name
       }
 
       function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -610,12 +635,14 @@
           if (ms < T_END) { requestAnimationFrame(frame); return; }
           if (!closed) { closed = true; sweep.style.clipPath = 'inset(0 0 0 0)'; from.style.visibility = 'hidden'; name.classList.add('out'); }
           if (cv.parentNode) cv.parentNode.removeChild(cv);
+          release();
         }
         requestAnimationFrame(frame);
       }
       function run() {
         if (started) return;
         started = true;
+        if (holdTop) toTop();   // the browser may have restored the old position after the load event
         fly();
       }
       if (document.readyState === 'complete') run(); else window.addEventListener('load', run);
