@@ -57,6 +57,7 @@
 
     .lead { font-size: 1.15rem; margin: 0.9rem 0 0.7rem; }
     .interests { margin: 0 0 1.25rem; color: var(--muted); }
+    .links .sep { width: 1px; height: 2.4rem; background: var(--rule); margin: 0 0.15rem; }
     .links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 0.9rem; margin: 0; padding: 0; list-style: none; }
 
     /* Frosted glass, shared by the link tiles and the panels. The page script sets --mx and --my to the
@@ -99,7 +100,8 @@
     .tile:hover { --lift: -3px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.07), 0 14px 26px rgba(0, 0, 0, 0.75); }
     .tile:active { --lift: 1px; }
     .tile:focus-visible { outline-offset: 4px; border-radius: 12px; }
-    @media (max-width: 30rem) { .tile { width: 3.6rem; height: 3.6rem; } .tile span { font-size: 0.6rem; } }
+    @media (max-width: 30rem) { .tile { width: 3.6rem; height: 3.6rem; } .tile span { font-size: 0.6rem; } .links { gap: 0.75rem 0.7rem; } .links .sep { display: none; } }
+    @media (max-width: 24rem) { .tile { width: 3.3rem; height: 3.3rem; } .links { gap: 0.6rem 0.55rem; } }
     @media (prefers-reduced-motion: reduce) { .tile { transition: none; } }
 
     /* Panels */
@@ -133,6 +135,60 @@
       font-size: 0.9rem; color: var(--muted);
     }
     .now-head img { width: 20px; height: 20px; flex: none; }
+    /* Refresh timer: a gel-like drop that swells out of the centre of a small glass across the 10 seconds until the next
+       check, gives one soft pulse, then releases into two ripples as it collapses, so the end of one cycle is the
+       start of the next with no jump. The drop has a wobbling edge, a faint halo behind it and a highlight. */
+    .refresh {
+      --glow: rgba(163, 161, 152, 0.35);
+      position: relative; z-index: 1; margin-left: auto; flex: none;
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      transition: color 0.5s ease, border-color 0.5s ease;
+    }
+    .now.is-playing .refresh { --glow: rgba(61, 220, 122, 0.55); color: var(--live); }
+    .refresh i { position: absolute; border-radius: 50%; pointer-events: none; }
+    .refresh .core, .refresh .halo { inset: 2.5px; transform: scale(0); will-change: transform, border-radius; }
+    .refresh .core {
+      background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 46%), currentColor;
+      box-shadow: 0 0 7px var(--glow);
+    }
+    .refresh .halo { background: currentColor; opacity: 0.3; }
+    .refresh .ripple { inset: -1.5px; border: 1.5px solid currentColor; opacity: 0; }
+    .refresh.run .core { animation: refreshCycle 10s linear forwards, refreshBlobA 3.1s ease-in-out infinite; }
+    .refresh.run .halo { animation: refreshCycleHalo 10s linear forwards, refreshBlobB 4.3s ease-in-out infinite; }
+    .refresh.run .ripple { animation: refreshRipple 1.15s cubic-bezier(0.2, 0.6, 0.3, 1) 8.8s forwards; }
+    .refresh.run .ripple.r2 { animation-delay: 9.05s; animation-duration: 0.95s; }
+    @keyframes refreshCycle {
+      0%   { transform: scale(0);    animation-timing-function: cubic-bezier(0.35, 0.15, 0.35, 1); }
+      86%  { transform: scale(1);    animation-timing-function: cubic-bezier(0.3, 0, 0.3, 1); }
+      90%  { transform: scale(1.12); animation-timing-function: cubic-bezier(0.55, 0, 0.35, 1); }
+      100% { transform: scale(0); }
+    }
+    @keyframes refreshCycleHalo {                       /* the halo trails the drop a little and swells wider */
+      0%   { transform: scale(0);    animation-timing-function: cubic-bezier(0.35, 0.15, 0.35, 1); }
+      88%  { transform: scale(1.18); animation-timing-function: cubic-bezier(0.3, 0, 0.3, 1); }
+      92%  { transform: scale(1.3);  animation-timing-function: cubic-bezier(0.55, 0, 0.35, 1); }
+      100% { transform: scale(0); }
+    }
+    @keyframes refreshBlobA {
+      0%, 100% { border-radius: 50%; }
+      25% { border-radius: 42% 58% 54% 46% / 56% 44% 56% 44%; }
+      50% { border-radius: 56% 44% 46% 54% / 44% 58% 42% 56%; }
+      75% { border-radius: 47% 53% 58% 42% / 52% 46% 54% 48%; }
+    }
+    @keyframes refreshBlobB {
+      0%, 100% { border-radius: 50%; }
+      30% { border-radius: 55% 45% 44% 56% / 46% 56% 44% 54%; }
+      65% { border-radius: 44% 56% 55% 45% / 57% 43% 57% 43%; }
+    }
+    @keyframes refreshRipple { from { transform: scale(1); opacity: 0.8; } to { transform: scale(2.1); opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .refresh.run .core { animation: refreshStep 10s steps(10, end) forwards; }
+      .refresh.run .halo, .refresh.run .ripple { animation: none; }
+      @keyframes refreshStep { from { transform: scale(0); } to { transform: scale(1); } }
+    }
     .dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--muted); flex: none; }
     .now.is-playing .dot { background: var(--live); }
     .now-body { display: flex; align-items: center; gap: 0.9rem; }
@@ -140,6 +196,52 @@
     .now-title { margin: 0; font-weight: 600; line-height: 1.35; }
     .now-title a { color: inherit; text-decoration: none; }
     .now-title a[href]::after { content: ""; position: absolute; inset: 0; }
+    .prog { display: none; align-items: center; gap: 0.6rem; margin-top: 0.8rem; font: 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .now.is-playing .prog.on { display: flex; }
+    .prog .bar { flex: 1; height: 2px; background: var(--rule); overflow: hidden; }
+    .prog .bar i { display: block; height: 100%; width: 100%; background: var(--live); transform-origin: left; transform: scaleX(0); }
+    .now-tabs { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem; margin: -0.1rem 0 0.8rem; }
+    .now-tabs[hidden] { display: none; }
+    .now-tabs button {
+      font: 0.78rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.03em;
+      padding: 0.35rem 0; border: 0; border-bottom: 1px solid transparent; border-radius: 0;
+      background: none; color: var(--muted); cursor: pointer;
+    }
+    .now-tabs button:hover { color: var(--text); }
+    .now-tabs button[aria-pressed="true"] { color: #fff; border-bottom-color: #fff; }
+    .now-pane[hidden] { display: none; }
+    /* Last.fm top lists */
+    .top-list { list-style: none; margin: 0; padding: 0; }
+    .top-list li {
+      position: relative; z-index: 2;
+      display: grid; grid-template-columns: 1.4rem 1fr auto; column-gap: 0.5rem; align-items: baseline;
+      padding: 0.45rem 0 0.55rem;
+    }
+    .top-list li + li { border-top: 1px solid rgba(255, 255, 255, 0.07); }
+    .top-list .rank { font: 0.78rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--muted); }
+    .top-list .name { min-width: 0; }
+    .top-list .name a, .top-list .name span.t { color: #fff; text-decoration: none; font-weight: 600; overflow-wrap: anywhere; }
+    .top-list .name a:hover { text-decoration: underline; text-underline-offset: 0.18em; }
+    .top-list .by { display: block; font-size: 0.85rem; color: var(--muted); overflow-wrap: anywhere; }
+    .top-list .plays { font: 0.78rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--muted); white-space: nowrap; }
+    .top-list .bar { grid-column: 2 / 4; height: 2px; margin-top: 0.4rem; background: rgba(255, 255, 255, 0.08); }
+    .top-list .bar i { display: block; height: 100%; width: var(--w, 0%); background: var(--muted); transform-origin: left; }
+    .now[data-view="artists"] .top-list .bar i, .now[data-view="tracks"] .top-list .bar i, .now[data-view="albums"] .top-list .bar i { animation: barIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+    @keyframes barIn { from { transform: scaleX(0); } }
+    @media (prefers-reduced-motion: reduce) { .top-list .bar i { animation: none !important; } }
+    .now[data-view]:not([data-view="now"]) .refresh { visibility: hidden; }
+    .now-foot .foot-lastfm { color: var(--muted); }
+    .now-foot .foot-lastfm a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--muted); }
+    .now-foot .foot-lastfm a:hover { color: var(--link); border-bottom-style: solid; }
+    .now-foot [hidden] { display: none; }
+    .now-foot { position: relative; z-index: 2; margin: 1rem 0 0; padding-top: 0.8rem; border-top: 1px solid var(--rule); font: 0.78rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.03em; }
+    .now-foot a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--muted); }
+    .now-foot a:hover { color: var(--link); border-bottom-style: solid; }
+    .now-foot a.foot-spotify { display: flex; align-items: center; gap: 0.55rem; border-bottom: 0; color: var(--text); }
+    .foot-spotify img { width: 16px; height: 16px; flex: none; }
+    .foot-spotify .go { margin-left: auto; width: 14px; height: 14px; flex: none; color: var(--muted); transition: transform 0.2s ease, color 0.2s ease; }
+    .foot-spotify:hover .go { color: var(--live); transform: translate(2px, -2px); }
+    .foot-spotify:hover { color: #fff; }
     .now-artist { margin: 0.1rem 0 0; font-size: 0.95rem; color: var(--muted); }
 
     /* Waveform: shown only while a track is playing */
@@ -162,7 +264,7 @@
     figcaption { margin-top: 0.4rem; font-size: 0.85rem; color: var(--muted); }
 
     /* Photography carousel (the whole section and its nav link stay hidden until at least one .slide exists) */
-    .photos:not(:has(.slide)), body:not(:has(.slide)) .nav-photo { display: none; }
+    .photos:not(:has(.slide)) { display: none; }
     .track {
       display: flex; gap: 1rem;
       margin: 0; padding: 0; list-style: none;
@@ -177,6 +279,8 @@
       background: var(--surface); border: 1px solid var(--rule); border-radius: 2px;
     }
     .track:focus-visible { outline-offset: 4px; }
+    .eyebrow a { color: inherit; text-decoration-color: var(--rule); }
+    .eyebrow a:hover { color: var(--text); text-decoration-color: currentColor; }
     .eyebrow {
       margin: 0 0 0.35rem;
       font: 0.8rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -506,9 +610,9 @@
       <nav aria-label="Links">
         <ul class="links">
           <li>
-            <a class="tile" href="https://github.com/nullamnesiac" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-              <span>GitHub</span>
+            <a class="tile" href="mailto:siddiquesameh16@gmail.com">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3.5 7 12 13 20.5 7"/></svg>
+              <span>Email</span>
             </a>
           </li>
           <li>
@@ -518,21 +622,22 @@
             </a>
           </li>
           <li>
-            <a class="tile" href="#projects">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="8 7 3 12 8 17"/><polyline points="16 7 21 12 16 17"/><line x1="14" y1="5" x2="10" y2="19"/></svg>
-              <span>Projects</span>
+            <a class="tile" href="https://github.com/nullamnesiac" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+              <span>GitHub</span>
+            </a>
+          </li>
+          <li class="sep" aria-hidden="true"></li>
+          <li>
+            <a class="tile" href="https://www.instagram.com/nullamnesiac/" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="0.6" fill="currentColor"/></svg>
+              <span>Instagram</span>
             </a>
           </li>
           <li>
-            <a class="tile" href="mailto:siddiquesameh16@gmail.com">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3.5 7 12 13 20.5 7"/></svg>
-              <span>Email</span>
-            </a>
-          </li>
-          <li class="nav-photo">
-            <a class="tile" href="#photography">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><polyline points="21 16 15.5 11 6 20"/></svg>
-              <span>Photos</span>
+            <a class="tile" href="https://www.tiktok.com/@nullamnesiac" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3v11.2a3.8 3.8 0 1 1-3.8-3.8"/><path d="M14 3c.3 2.7 2.2 4.6 5 4.9"/></svg>
+              <span>TikTok</span>
             </a>
           </li>
         </ul>
@@ -543,24 +648,40 @@
           <img src="assets/spotify-icon.svg" alt="Spotify" width="20" height="20">
           <span class="dot" aria-hidden="true"></span>
           <span id="now-label">Spotify</span>
+          <span class="refresh" id="refresh" aria-hidden="true" title="Refreshes every 10 seconds"><i class="halo"></i><i class="core"></i><i class="ripple"></i><i class="ripple r2"></i></span>
         </p>
-        <div class="now-body">
-          <img class="now-art" id="now-art" alt="" width="64" height="64">
-          <div>
-            <p class="now-title" id="now-title">Checking Spotify...</p>
-            <p class="now-artist" id="now-artist"></p>
-          </div>
+        <div class="now-tabs" id="now-tabs" hidden>
+          <button type="button" data-view="now" aria-pressed="true">Now playing</button>
+          <button type="button" data-view="artists" aria-pressed="false">Artists</button>
+          <button type="button" data-view="tracks" aria-pressed="false">Tracks</button>
+          <button type="button" data-view="albums" aria-pressed="false">Albums</button>
         </div>
-        <canvas class="wave" id="wave" aria-hidden="true"></canvas>
+        <div class="now-pane" data-pane="now">
+          <div class="now-body">
+            <img class="now-art" id="now-art" alt="" width="64" height="64">
+            <div>
+              <p class="now-title" id="now-title">Checking Spotify...</p>
+              <p class="now-artist" id="now-artist"></p>
+            </div>
+          </div>
+          <canvas class="wave" id="wave" aria-hidden="true"></canvas>
+          <div class="prog" id="prog" role="progressbar" aria-label="Song progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="prog-pos">0:00</span><div class="bar"><i id="prog-fill"></i></div><span id="prog-dur">0:00</span></div>
+        </div>
+        <div class="now-pane" data-pane="artists" hidden><ol class="top-list" id="top-artists"></ol></div>
+        <div class="now-pane" data-pane="tracks" hidden><ol class="top-list" id="top-tracks"></ol></div>
+        <div class="now-pane" data-pane="albums" hidden><ol class="top-list" id="top-albums"></ol></div>
+        <p class="now-foot">
+          <a class="foot-spotify" href="https://open.spotify.com/user/31ooq3ku2rpoedoa6sqhs7fu4wi4" target="_blank" rel="noopener"><img src="assets/spotify-icon.svg" alt="" width="16" height="16"><span>My Spotify profile</span><svg class="go" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 10l6-6M5 4h5v5"/></svg></a>
+          <span class="foot-lastfm" hidden>Past 7 days on <a id="lastfm-link" href="https://www.last.fm/" target="_blank" rel="noopener">Last.fm</a></span>
+        </p>
       </div>
     </header>
 
     <!-- Instagram carousel. It stays hidden until you add at least one <li class="slide"> below.
          Save each photo into the assets/photos folder, then copy the example <li> once per photo.
-         Describe what is in the photo in the alt text. Photos are never cropped.
-         To link to your Instagram, add: <a href="https://www.instagram.com/YOUR-HANDLE/" target="_blank" rel="noopener">@YOUR-HANDLE</a> -->
+         Describe what is in the photo in the alt text. Photos are never cropped. -->
     <section id="photography" class="photos" aria-labelledby="photo-heading">
-      <p class="eyebrow">As seen on Instagram</p>
+      <p class="eyebrow">As seen on <a href="https://www.instagram.com/nullamnesiac/" target="_blank" rel="noopener">Instagram</a></p>
       <h2 id="photo-heading">Photography</h2>
       <ul class="track" id="photo-track" tabindex="0" aria-label="Photo carousel, scroll sideways">
         <!-- Example slide (remove the comment markers to use):
@@ -839,6 +960,16 @@
       var title = document.getElementById('now-title');
       var artist = document.getElementById('now-artist');
       var timer = null;
+      var ring = document.getElementById('refresh');
+
+      // restart the ring from empty (the forced reflow makes the animation begin again)
+      function ringStart() {
+        if (!ring) return;
+        ring.classList.remove('run');
+        void ring.getBoundingClientRect();
+        ring.classList.add('run');
+      }
+      function ringStop() { if (ring) ring.classList.remove('run'); }
 
       function setState(text, playing) {
         label.textContent = text;
@@ -897,25 +1028,112 @@
               art.style.display = 'none';
             }
             var when = data.isPlaying ? '' : ago(data.playedAt);
+            setProgress(data);
             setState(data.isPlaying ? 'Playing now' : (when ? 'Last played ' + when : 'Last played'), !!data.isPlaying);
           } else {
+            setProgress({});
             setState('Spotify', false);
             showMessage('Nothing is playing right now.', 'No recent track is available.');
           }
         } catch (error) {
+          setProgress({});
           setState('Spotify', false);
           showMessage('Could not load Spotify data.', 'Try again later.');
         }
       }
 
-      function start() { load(); timer = setInterval(load, 10000); }
-      function stop() { clearInterval(timer); timer = null; }
+      // Song progress: the API reports where I am every 10 s, and the page keeps counting in between
+      var prog = document.getElementById('prog'), progPos = document.getElementById('prog-pos'),
+          progDur = document.getElementById('prog-dur'), progFill = document.getElementById('prog-fill');
+      var pBase = 0, pDur = 0, pAt = 0, pTimer = null;
+      function mmss(ms) { var t = Math.max(0, Math.floor(ms / 1000)); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
+      function paint() {
+        var cur = Math.min(pDur, pBase + (Date.now() - pAt));
+        progPos.textContent = mmss(cur);
+        progFill.style.transform = 'scaleX(' + (cur / pDur) + ')';
+        prog.setAttribute('aria-valuenow', String(Math.round(cur / pDur * 100)));
+      }
+      function setProgress(data) {
+        clearInterval(pTimer); pTimer = null;
+        if (!data.isPlaying || !(data.durationMs > 0) || !(data.progressMs >= 0)) { prog.classList.remove('on'); return; }
+        pBase = data.progressMs; pDur = data.durationMs; pAt = Date.now();
+        progDur.textContent = mmss(pDur);
+        prog.classList.add('on');
+        paint();
+        pTimer = setInterval(paint, 250);
+      }
+
+      function tick() { ringStart(); load(); }
+      function start() { tick(); timer = setInterval(tick, 10000); }
+      function stop() { clearInterval(timer); timer = null; clearInterval(pTimer); pTimer = null; ringStop(); }
 
       // Stop polling while the tab is hidden, and refresh as soon as it is visible again
       document.addEventListener('visibilitychange', function () {
         if (document.hidden) { stop(); } else if (timer === null) { start(); }
       });
       start();
+    })();
+
+    /* ---------- Last.fm top lists (tabs in the Spotify panel; they only appear if the API answers) ---------- */
+    (function () {
+      var API = 'https://portfolio-spotify-api-widget.vercel.app/api/lastfm?period=7day';
+      var box = document.getElementById('now');
+      var tabs = document.getElementById('now-tabs');
+      var panes = box.querySelectorAll('.now-pane');
+      var buttons = tabs.querySelectorAll('button');
+      var foot = box.querySelector('.now-foot');
+
+      function setView(view) {
+        box.setAttribute('data-view', view);
+        buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-view') === view)); });
+        panes.forEach(function (p) { p.hidden = p.getAttribute('data-pane') !== view; });
+        foot.querySelector('.foot-spotify').hidden = view !== 'now';
+        foot.querySelector('.foot-lastfm').hidden = view === 'now';
+        if (view === 'now' && box.classList.contains('is-playing')) Wave.start();
+      }
+      buttons.forEach(function (b) { b.addEventListener('click', function () { setView(b.getAttribute('data-view')); }); });
+
+      // Build a list with textContent and createElement only, so API data is never parsed as HTML
+      function fill(ol, items, withArtist) {
+        ol.textContent = '';
+        var max = items.reduce(function (m, it) { return Math.max(m, it.plays); }, 0) || 1;
+        items.forEach(function (it, i) {
+          var li = document.createElement('li');
+          var rank = document.createElement('span'); rank.className = 'rank'; rank.textContent = String(i + 1);
+          var name = document.createElement('span'); name.className = 'name';
+          var title;
+          if (it.url) { title = document.createElement('a'); title.href = it.url; title.target = '_blank'; title.rel = 'noopener'; }
+          else { title = document.createElement('span'); title.className = 't'; }
+          title.textContent = it.name;
+          name.appendChild(title);
+          if (withArtist && it.artist) { var by = document.createElement('span'); by.className = 'by'; by.textContent = it.artist; name.appendChild(by); }
+          var plays = document.createElement('span'); plays.className = 'plays';
+          plays.textContent = it.plays + (it.plays === 1 ? ' play' : ' plays');
+          var bar = document.createElement('span'); bar.className = 'bar';
+          var fillEl = document.createElement('i'); fillEl.style.setProperty('--w', Math.max(4, Math.round(it.plays / max * 100)) + '%');
+          bar.appendChild(fillEl);
+          li.appendChild(rank); li.appendChild(name); li.appendChild(plays); li.appendChild(bar);
+          ol.appendChild(li);
+        });
+      }
+
+      function usable(list) {
+        return Array.isArray(list) ? list.filter(function (x) { return x && typeof x.name === 'string' && typeof x.plays === 'number'; }) : [];
+      }
+
+      fetch(API).then(function (r) { if (!r.ok) throw new Error('Bad response'); return r.json(); }).then(function (d) {
+        if (!d || !d.available) return;
+        var artists = usable(d.artists), tracks = usable(d.tracks), albums = usable(d.albums);
+        if (!artists.length && !tracks.length && !albums.length) return;
+        fill(document.getElementById('top-artists'), artists, false);
+        fill(document.getElementById('top-tracks'), tracks, true);
+        fill(document.getElementById('top-albums'), albums, true);
+        if (typeof d.profileUrl === 'string' && d.profileUrl.indexOf('https://www.last.fm/') === 0) {
+          document.getElementById('lastfm-link').href = d.profileUrl;
+        }
+        tabs.hidden = false;
+        setView('now');
+      }).catch(function () { /* no Last.fm data: the panel just stays as it is */ });
     })();
 
     /* ---------- Photography carousel ---------- */
